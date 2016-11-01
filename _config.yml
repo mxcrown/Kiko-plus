@@ -9,12 +9,7 @@ name:               "Michael Crown"
 
 author:
   name:             Michael Crown
-  facebook:         your-id
-  twitter:          your-id
-  github:           your-id
-  linkedin:         your-id
-  medium:           your-id
-  tumblr:           your-id
+  github:           mxcrown
   email:            michael@mxcrown.com
 
 # Google-analytics
@@ -23,7 +18,7 @@ google-analytics:
 
 # Disqus
 disqus:
-  id:               "your-id"
+  id:               ""
 
 # URL
 #url:                "https://AWEEKJ.github.io" # the base hostname & protocol for your site
