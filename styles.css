@@ -6,7 +6,7 @@
 @import 'https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,600';
 @font-face {
     font-family: 'avenir';
-    src: url('assests/fonts/a-avenir-next-lt-pro.woff') format('woff');
+    src: url('assets/fonts/a-avenir-next-lt-pro.woff') format('woff');
 }
 
 html, body {
