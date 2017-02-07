@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- {% include head.html %} -->
+<head>
+  <title>Michael Crown: Credit Card Fraud Detection</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Michael Crown - Credit Card Fraud Detection" />
+  <!-- <meta property="og:url" content="" /> -->
+  <meta property="og:site_name" content="Michael Crown" />
+  
+  <!-- MathJax -->
+  <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../styles.css" type="text/css">
+  <link rel="stylesheet" href="../contact-styles.css" type="text/css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <script   src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+  <script src="../functions.js"></script>
+
+
+  <!-- <link rel="alternate" type="application/rss+xml" title="RSS Feed for {{ site.name }}" href="{{ site.baseurl }}/feed.xml" /> -->
+  <!-- {% seo %} -->
+
+
+  <!-- {% include google-analytics.html %} -->
+
+</head>
+<body>
+  <div class="content-container"> <!-- change to 2rem padding -->
+    <!-- {{ content }} -->
+    <!-- {% include header.html %} -->
+    <header class="header">
+      <h1 class="header-title">
+        <img src="../images/logo.png">
+        <a href="https://mxcrown.github.io">Michael Crown</a>
+        <br>
+        <span>data scientist</span>
+      </h1>
+      <nav class="header-nav">
+        <a href="/#who">About</a>
+        <a href="/#projects">Projects</a>
+        <a href="https://github.com/mxcrown">Github</a>
+      </nav>
+    </header>
+
+    <!-- Executive Summary -->
+    <div id="exec" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h1>Credit Card Fraud Detection and Cost Minimization</h1>
+        <h2 class='sub'>Using Calibrated Probabilities to Minimize Cost Associated With Credit Card Fraud</h2>
+        <br>
+
+        <h3>Executive Summary</h3>
+        <p>Historical transaction data was used to predict fraudulent credit card transactions, followed by calibration of predicted probabilities to better approximate real world values. The motivation is to use calibrated probabilities to make classification decisions that minimize the loss incurred by fraudulent purchases.</p>
+
+        <p><b>Analysis:</b> The models used in analysis include Gaussian Naive Bayes (NB), feed forward Neural Networks (NN) and Random Forests (RF). NB was used as a baseline, while the other models were used in actual prediction and calibration. Performance was measured using precision, recall, F1, and precision-recall area under curve (PR-AUC).</p>
+
+        <p><b>Results and Conclusions:</b> For the data used in this analysis, the best RF model shows a better calibrated reliability curve and achieves a higher PR-AUC value &mdash; 0.88 vs. 0.78 for the NN. The performance differences between the two models were small when evaluated using risk minimization.</p>
+
+        <p>Cost analysis shows that the the choice of model depends on the internal cost in dollars (<i>C<sub>in</sub></i>) of acting on potential fraud. Except for intermediate <i>C<sub>in</sub></i> values (appx. 1.5-5), the RF appears to be the better model, but the NN offers better performance within that range. Using these models, total loss can be reduced by as much as 83%, varying according to <i>C<sub>in</sub></i>.</p>
+
+        <p><b>Recommendations:</b>
+          <ul>
+            <li>A larger dataset with more fraud instances would enable better analysis and calibration.</li>
+            <li>Determine internal cost of acting on predicted fraud.</li>
+            <li>Select a model based on the results of cost analysis, using the determined internal cost.</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Outline -->
+    <div id="outline" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>Outline</h2>
+        <ol>
+          <li><a id="intro-a">Introduction</a></li>
+          <li><a id="questions-a">Questions</a></li>
+          <li><a id="data-a">Data</a></li>
+          <li><a id="anly-a">Analysis &amp; Modeling</a></li>
+          <li><a id="risk-a">Risk Minimization</a></li>
+          <li><a id="results-a">Results</a></li>
+          <li><a id="conclusions-a">Conclusions</a></li>
+          <li><a id="limits-a">Limitations</a></li>
+        </ol>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Introduction -->
+    <div id="intro" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>INTRODUCTION</h2>
+        <p>This report outlines the process of modeling historical transaction data (approximately 285,000 transactions) to predict credit card fraud, using Naive Bayes (NB), neural networks (NN), and random forest classifiers (RF). Modeling was follwed by calibration of predicted probabilities, to better approximate real world values. The motivation behind the calibration is to make classification decisions that minimize the loss incurred by fraudulent purchases; in order to compute minimized risk correctly, it is necessary to have predicted probabilities that are as close as possible to real-world values.</p>
+      </div>
+    </div>
+    <!-- Introduction -->
+    <div id="questions" class="content-block">
+      <div class="content-block-inner">
+        <h2>QUESTIONS</h2>
+        <p>The questions that motivated this study are:
+          <ol>
+            <li>Can fraudulent credit card transactions be predicted from the available data with reasonable performance?</li>
+            <li>How well can fraud be predicted using different models?</li>
+            <li>Will there be a large tradeoff between precision and recall?</li>
+            <li>How well do the top models minimize cost for different <i>C<sub>in</sub></i> values?</li>
+            <li>What can be done to further minimize cost?</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+
+    <div id="data" class="content-block">
+      <div class="content-block-inner">
+        <h2>DATA</h2>
+        <p>
+          The dataset used in this analysis was obtained from kaggle datasets and is structured as follows:
+          <ul>
+            <li>284,807 transactions with 492 classified as fraudulent (positive)
+              <ul>
+                <li>positives account for only 0.17% of the set (extreme imbalance)</li>
+              </ul>
+            </li>
+            <li>31 columns (Time, 28 anonymized numerical features, Amount, and Class)</li>
+          </ul>
+        </p>
+
+        <!-- Data Table Head -->
+        <div class="description">Table 1: The first five rows of the raw transaction data.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>Time</th>
+                <th>V1</th>
+                <th>V2</th>
+                <th>V3</th>
+                <th>V4</th>
+                <th>V5</th>
+                <th>V6</th>
+                <th>V7</th>
+                <th>V8</th>
+                <th>V9</th>
+                <th>...</th>
+                <th>V21</th>
+                <th>V22</th>
+                <th>V23</th>
+                <th>V24</th>
+                <th>V25</th>
+                <th>V26</th>
+                <th>V27</th>
+                <th>V28</th>
+                <th>Amount</th>
+                <th>Class</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>0</th>
+                <td>0.0</td>
+                <td>-1.359807</td>
+                <td>-0.072781</td>
+                <td>2.536347</td>
+                <td>1.378155</td>
+                <td>-0.338321</td>
+                <td>0.462388</td>
+                <td>0.239599</td>
+                <td>0.098698</td>
+                <td>0.363787</td>
+                <td>...</td>
+                <td>-0.018307</td>
+                <td>0.277838</td>
+                <td>-0.110474</td>
+                <td>0.066928</td>
+                <td>0.128539</td>
+                <td>-0.189115</td>
+                <td>0.133558</td>
+                <td>-0.021053</td>
+                <td>149.62</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <th>1</th>
+                <td>0.0</td>
+                <td>1.191857</td>
+                <td>0.266151</td>
+                <td>0.166480</td>
+                <td>0.448154</td>
+                <td>0.060018</td>
+                <td>-0.082361</td>
+                <td>-0.078803</td>
+                <td>0.085102</td>
+                <td>-0.255425</td>
+                <td>...</td>
+                <td>-0.225775</td>
+                <td>-0.638672</td>
+                <td>0.101288</td>
+                <td>-0.339846</td>
+                <td>0.167170</td>
+                <td>0.125895</td>
+                <td>-0.008983</td>
+                <td>0.014724</td>
+                <td>2.69</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <th>2</th>
+                <td>1.0</td>
+                <td>-1.358354</td>
+                <td>-1.340163</td>
+                <td>1.773209</td>
+                <td>0.379780</td>
+                <td>-0.503198</td>
+                <td>1.800499</td>
+                <td>0.791461</td>
+                <td>0.247676</td>
+                <td>-1.514654</td>
+                <td>...</td>
+                <td>0.247998</td>
+                <td>0.771679</td>
+                <td>0.909412</td>
+                <td>-0.689281</td>
+                <td>-0.327642</td>
+                <td>-0.139097</td>
+                <td>-0.055353</td>
+                <td>-0.059752</td>
+                <td>378.66</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <th>3</th>
+                <td>1.0</td>
+                <td>-0.966272</td>
+                <td>-0.185226</td>
+                <td>1.792993</td>
+                <td>-0.863291</td>
+                <td>-0.010309</td>
+                <td>1.247203</td>
+                <td>0.237609</td>
+                <td>0.377436</td>
+                <td>-1.387024</td>
+                <td>...</td>
+                <td>-0.108300</td>
+                <td>0.005274</td>
+                <td>-0.190321</td>
+                <td>-1.175575</td>
+                <td>0.647376</td>
+                <td>-0.221929</td>
+                <td>0.062723</td>
+                <td>0.061458</td>
+                <td>123.50</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <th>4</th>
+                <td>2.0</td>
+                <td>-1.158233</td>
+                <td>0.877737</td>
+                <td>1.548718</td>
+                <td>0.403034</td>
+                <td>-0.407193</td>
+                <td>0.095921</td>
+                <td>0.592941</td>
+                <td>-0.270533</td>
+                <td>0.817739</td>
+                <td>...</td>
+                <td>-0.009431</td>
+                <td>0.798278</td>
+                <td>-0.137458</td>
+                <td>0.141267</td>
+                <td>-0.206010</td>
+                <td>0.502292</td>
+                <td>0.219422</td>
+                <td>0.215153</td>
+                <td>69.99</td>
+                <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <p>Time is a generic integer value that conveys little more than the order in which the transactions occur. The anonymized features are mean-centered numerical floats, each denoted by <i>Vi</i>, where <i>i</i> is the feature number (from 1-28). Amount refers to the amount of the transaction in dollars. Class has two possible values, zero or one, where a value of one indicates fraud.</p>
+      </div>
+    </div>
+
+    <div id="anly" class="content-block">
+      <div class="content-block-inner">
+        <h2>ANALYSIS</h2>
+
+        <h3>Preprocessing</h3>
+        <p>This step was nothing more than splitting the data into three sets: training, validation, and test, followed by standardizing all features in the training set as ~N(0, 1) — then transforming the validation and test sets accordingly. This split was the only method of cross validation used for this project.</p>
+
+        <h3>Exploratory Analysis</h3>
+        <p>The anonymized features were grouped by class, and individually plotted as scatter and kernel density estimates (see figures 1 and 2), such that each plot contained one feature with both classes for comparison. The motivation behind this was to gain insights for feature selection: features with some separation between class distributions are likely to perform better for classification, while those with little or no separation are likely to add noise to the models. The latter is less of a problem for NN and RF, but eliminating features can cut down on training time. Also, distributions that are highly irregular should typically be excluded from NB models.</p>
+
+        <!-- Figures 1 and 2 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/class-scatters.png" target="_blank"><img src="images/class-scatters.png"></a>
+            <div class="description">Figure 1: Grid of scatter plots by feature and class. A singe plot compares the full range of distributions between classes for one feature.</div>
+          </div>
+          
+          <div class="fig-sm">
+            <a href="images/class-kde.png" target="_blank"><img src="images/class-kde.png"></a>
+            <div class="description">Figure 2: Grid of kernel density estimates by feature and class. A singe plot compares the approximately five std. of estimated distributions between classes for one feature.</div>
+          </div>
+        </div>
+
+        <p>Many features are approximately normal, though some look like Skellam distributions and some range from slightly to extremely irregular. Those that would likely be excluded from NB models due to irregularity have a lot of overlap between classes, and will already be removed when selecting by separation of distributions.</p>
+
+        <h3>Feature Selection</h3>
+        <p>Based on the findings in the last section, only one method of feature selection was used: filter out those with too much overlap between classes. This was done by computing summary statistics for each feature by class, and selecting those where the medians of each class had a minimum separation of <i>max(std class0, std class1)</i>. The features selected using this method were V[4, 11, 12, 14].</p>
+
+        <h3>Resampling</h3>
+        <p>Because the data is extremely unbalanced (only a very small proportion of transactions are labeled as fraud), a few resampling methods were used to help offset this, and these methods were tested for each classifier. The methods used were random under sampling and generative over sampling.</p>
+
+        <p>For random under sampling, the set was separated by class, and a random sample of 50,000 was selected from the portion labeled as legitimate transactions. This sample was recombined with the fraudulent transactions to form a complete, resampled training set. Reducing the number of legitimate transactions to below 50,000 begins to cause large decreases in precision, and so smaller values were not used.</p>
+
+        <p>The generative oversampling selected only the fraudulent transactions from the original training set, and computed estimated distributions for all features. Fraudulent transactions were then generated by randomly sampling from these estimates, and class labels were added. This synthesized sample was recombined with the legitimate transactions. Four sets were generated using this method: 500, 1,000, 2,000, and 5,000 generated transactions.</p>
+
+        <h3>Scoring Method</h3>
+        <p>For all models, including NB, performance was measured using precision, recall, and F1. For the final models, precision-recall area under curve (PR-AUC) was also measured. Accuracy was recorded, but because of the imbalance in the data, this value has no importance: predicting everything as being legitimate transactions will get only a fraction of one percent of the predictions wrong, giving a minimum accuracy greater than 99%.</p>
+
+        <h3>Baseline Models: Naive Bayes</h3>
+        <p>To get a baseline for comparison against the NN and RF models, a Gaussian Naive Bayes classifier was chosen. Using both the raw data (all features) and only the features selected above, NB models were fitted to the original and resampled training sets, and scored on the validation set. The scores are tabulated in table 2 below.</p>
+
+        <div class="description">Table 2: The scores achieved in the baseline Naive Bayes models. The first two rows use no resampling, with the only difference being without and with feature selection. Row rand_under_50K was from the undersampled set, and the remaining rows were from generative resampling. Note the sharp decrease in precision from generative 1K to generative 5K.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>raw</th>
+                <td>0.996357</td>
+                <td>0.210526</td>
+                <td>0.410256</td>
+                <td>0.278260</td>
+              </tr>
+              <tr>
+                <th>median</th>
+                <td>0.998947</td>
+                <td>0.670455</td>
+                <td>0.756410</td>
+                <td>0.710843</td>
+              </tr>
+              <tr>
+                <th>rand_under_50K</th>
+                <td>0.998903</td>
+                <td>0.642857</td>
+                <td>0.807692</td>
+                <td>0.715909</td>
+              </tr>
+              <tr>
+                <th>gen_over_500</th>
+                <td>0.998903</td>
+                <td>0.642857</td>
+                <td>0.807692</td>
+                <td>0.715909</td>
+              </tr>
+              <tr>
+                <th>gen_over_1K</th>
+                <td>0.998903</td>
+                <td>0.640000</td>
+                <td>0.820513</td>
+                <td>0.719101</td>
+              </tr>
+              <tr>
+                <th>gen_over_5K</th>
+                <td>0.998420</td>
+                <td>0.523810</td>
+                <td>0.846154</td>
+                <td>0.647058</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <p>The table above shows that the chosen feature selection method greatly improves performance over the raw data for the NB classifier, and the generative resampling method works well for smaller resampling sizes, but loses precision as the number of samples generated increases. The generative resampling with 1,000 additional samples was chosen as the resampling method to be tested with the NN and RF models.</p>
+
+        <h3>Model Selection</h3>
+        <p>To select the best models among NN and RF classifiers, the algorithms for each were run numerous times — with different hyper-parameters — on four training sets (raw, feature selected, and both of these resampled), and evaluated using the validation set. This was done with automated processes described in the next few paragraphs, where the details of modeling are discussed for each classifier.</p>
+
+        <h4>Neural Nets</h4>
+        <p>The program used for constructing, training, and evaluating neural networks can be found on <a href="https://github.com/mxcrown/convnetwork/blob/master/convnetwork.py">my GitHub</a>. Three network architectures were tested on the raw set: one with no hidden layer, and two with a single hidden layer of 14 and 29 nodes. Two architectures on the feature-selected training set without resampling: one with no hidden layer, and one with a single hidden layer of 4 nodes. The output layer for each was a softmax layer with two nodes that output probabilities for each class.</p>
+
+        <p>These models were evaluated using an automated hyper-parameter (hypers) search algorithm built into the program, using a random search approach. This iteratively trained on 150 combinations of hypers for each model, at 40 epochs per combination. Results from printouts and plots showing epoch scores were used to choose final model architecture.</p>
+
+        <p>The two best performers used a single hidden layer with with 14 nodes (no feature selection), both resampled (gen 1K) and original sample. The resampled set gave slightly better recall scores on the validation set (0.778 vs. 0.741) at the expense of precision (0.764 vs 0.842), what appears to be an overall reduction in performance for the gen 1K set. However, the no-resample model achieved an approximate 0.03 bump in precision after what appeared to be some over-training. Beause of this and a slight preference for higher recall, the final model used the gen 1K resampled data.</p>
+
+        <p>The final NN model used the concatenation of the resampled training set and validation set. Performance was tracked against this combined data for fine-tuning, and not the test data (see table 3); scoring predictions on the test set were saved until after tuning.</p>
+
+        <h4>Random Forests</h4>
+        <p>The scikit-learn random forest classifier was used for these models, using the standard Gini index. Several random forests were evaluated for each training set (no-resample, and gen 1K), using different numbers of estimators (forest size). The models were evaluated by computing PR_AUC. The best model resulted from the no-resmaple set, using 1000 estimators. The difference in scores between the two sets was marginal: a PR-AUC using 1,000 estimators of 0.70 vs. 0.69.</p>
+
+        <p>The final RF model was trained on the concatenated version of the original training and validation sets, and scored using precision, recall, and F1. See <a id="results-b">Results</a> for details.</p>
+
+        <h3>Calibrating Probabilities</h3>
+        <p>Because the predicted probabilities from different machine learning models are not always true to real-life values, something that is important to have for risk minimization, predicted values should be analyzed and likely calibrated.</p>
+
+        <p>Analysis of the probabilities had two parts: comparing the mean predicted value from each model to the proportion of positives in the test set, and visual inspection of reliability curves. The former is done simply by computing the mean of the predicted values from each model, while the latter is beyond the scope of this report. The comparisons can be found in table 3 and figures 4 and 5.</p>
+
+        <p>Predicted probabilities were calibrated using Platt’s scaling, which trains a logistic regression (LR) model on probabilities predicted from the training set. Test set predictions from the models of interest (NN and RF) were then used as inputs to the LR models, producing outputs as calibrated probabilities. Outputs from neural networks are typically well calibrated on their own, but this particular dataset poses some challenges in this regard (see Limitations). Mean predicted values (MPV) and reliability diagrams from before and after calibration are shown below. For the reliability diagrams, only 5 bins were used because of the limited number of positives.</p>
+
+        <!-- table/figures -->
+
+        <!-- Figures 3 and 4 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/reliability-before.png" target="_blank"><img src="images/reliability-before.png"></a>
+            <div class="description">Figure 3: Top: Reliability diagram of predicted probabilities before calibration; the diagonal is the ideal shape. Bottom: Distribution of predicted positives (fraud).</div>
+          </div>
+          
+          <div class="fig-sm">
+            <a href="images/reliability-after.png" target="_blank"><img src="images/reliability-after.png"></a>
+            <div class="description">Figure 4: Top: Reliability diagram of predicted probabilities after calibration. Bottom: Distribution of predicted positives (also after calibration).</div>
+          </div>
+        </div>
+
+        <!-- Table 3 -->
+        <div class="description">Table 3: Mean predicted values before and after calibration for NN and RF models.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>NN before</th>
+                <th>NN after</th>
+                <th>RF before</th>
+                <th>RF after</th>
+                <th>Truth</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>MPV</th>
+                <td>0.00344</td>
+                <td>0.00215</td>
+                <td>0.00185</td>
+                <td>0.00164</td>
+                <td>0.00165</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <p>The RF shows a notable improvement in the diagrams and MPV. The NN almost appears worse, but the large dip in the diagram is due to a lack of predicted probabilities in that range; the shape is otherwise better aligned with the diagonal, and there was a marked improvement in MPV.</p>
+      </div>
+    </div>
+
+    <div id="risk" class="content-block">
+      <div class="content-block-inner">
+        <h2>RISK MINIMIZATION</h2>
+
+        <p>While the trained classifiers can do a good job of correctly predicting fraudulent transactions, they are not perfect. Instead of making a decision based solely on the class with the highest predicted probability, risk minimization uses Bayesian decision making &mdash; involving conditional probabilities and the losses associated with possible decisions to minimize total loss. This can be described more completely and efficiently with a mathematical definition of risk and decision making:</p>
+
+        $$R(\omega_i | x) = \sum_{j=0}^c\lambda(\omega_i | \omega_j)P(\omega_j | x)$$
+
+        <p>Where \(\lambda(\omega_i | \omega_j)\) is the loss incurred from deciding \(\omega_i\) when the true state is \(\omega_j\). More compacty, \(\lambda(\omega_i | \omega_j)\) will be referred to as \(\lambda_{ij}\).</p>
+
+        <p>
+          Now, in the case of predicting fraud, we have two class conditional risk:
+          $$R(\omega_0 | x) = \lambda_{00}P(\omega_0 | x) + \lambda_{01}P(\omega_1 | x)$$
+          $$R(\omega_1 | x) = \lambda_{10}P(\omega_0 | x) + \lambda_{11}P(\omega_1 | x)$$
+
+          Decision making:
+          if \(R(\omega_0 | x) < R(\omega_1 | x)\) choose \(\omega_0\), else choose \(\omega_1\).</p>
+
+        <p>
+          The conxtual definitions for \(\lambda_{ij}\) are:
+          <br><br>
+          \(\lambda_{00}\) = Zero ($): the cost of deciding the transaction is legitimated when it is.
+          <br>
+          \(\lambda_{01}\) = Amount of transaction ($): the cost of deciding a transaction is legitimate when it is not.
+          <br>
+          \(\lambda_{10}\) = <i>C<sub>in</sub></i> ($): the cost of deciding the transaction is fraudulent when it is not.
+          <br>
+          \(\lambda_{11}\) = <i>C<sub>in</sub></i> ($): the cost of deciding the transaction is fraudulent when it is.
+        </p>
+
+        <p>The value <i>C<sub>in</sub></i> is some internal (administrative) cost associated with acting on the decision that a transaction is fraudulent. Because the internal cost is both unknown, and may not always be the same, the first goal of cost analysis was to compare the losses of the top two models as <i>C<sub>in</sub></i> varies, relative to the total loss if no fraud detection is used. The second goal was to evaluate the overall predictive performance of the two models under the same varying conditions, but without minimum risk decision making (i.e. making decisions based soley on model predictions).</p>
+
+        <p>This analysis was conducted in multiple parts:
+
+        <ol>
+          <li>Using risk minimization
+          <ul>
+            <li>with calibration</li>
+            <li>without calibration</li>
+          </ul>
+          </li>
+          <li>Using only model predictions
+          <ul>
+            <li>with calibration only</li>
+          </ul>
+          </li>
+        </ol>
+
+        For each version listed above, total loss was computed for each model for 100 values of <i>C<sub>in</sub></i>. Using ranges [0, 3) and [0, 20). These values may seem small, and that is primarily because automated systems make contacting a customer about suspected fraud extremely inexpensive.</p>
+      </div>
+    </div>
+
+    <div id="results" class="content-block">
+      <div class="content-block-inner">
+        <h2>RESULTS</h2>
+
+        <h3>Test Scores</h3>
+        <p>In pure predictive performance, the RF outperformed the NN when using 1000 estimators. The test scores and are tabulated in table 4, and the PR curves with AUC can be seen in figure 5:</p>
+
+        <!-- Figure 5 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/pr-curves.png" target="_blank"><img src="images/pr-curves.png"></a>
+            <div class="description">Figure 5: Precision-Recall curves for the final NN and RF models. AUC for each is listed in the legend.</div>
+          </div>
+
+          <div>
+            <!-- Table 4 -->
+            <div class="description">Table 4: Uncalibrated scores for NN and RF models using the test set.</div>
+            <div class="table-wrap">
+              <table border="1" class="dataframe">
+                <thead>
+                  <tr style="text-align: right">
+                    <th>Test scores</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>NN</th>
+                    <td>0.712</td>
+                    <td>0.894</td>
+                    <td>0.792</td>
+                  </tr>
+                  <tr>
+                    <th>RF</th>
+                    <td>0.933</td>
+                    <td>0.894</td>
+                    <td>0.913</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        
+        <br>
+
+        <p>While the two models can achieve the same level of recall, there is a large difference in precision, meaning the NN is generating many false-positives in order to achieve high recall. The performance difference is also reflected in the AUC values. The PR-AUC was unchanged after calibrating probabilities.</p>
+
+        <h3>Cost Anlaysis</h3>
+        <h4>With and Without Risk Minimization</h4>
+
+        <p>Two figures are presented for evaluation of the performance of the calibrated models: Figure 6 shows total loss in dollars (left y-axis), and the decision truth ratio (right y-axis) as functions of <i>C<sub>in</sub></i>. The decision/truth ratio is the number of transactions decided to be fraudulent, divided by the number of actual fraudulent transactions  &mdash; this is a simplified way of knowing how the minimum risk is making decisions as <i>C<sub>in</sub></i> varies. Figure 7 shows a wider range for <i>C<sub>in</sub></i> and compares losses of classifications with and without using minimum risk (Bayesian decisions vs. purely prediction-based). Making decisions based on minimum risk result in smaller losses compared to decisions based purely on model predictions.</p>
+
+        <!-- Figures 6 and 7 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/cost-anly-cal1.png" target="_blank"><img src="images/cost-anly-cal1.png"></a>
+            <div class="description">Figure 6: Solid lines are the total loss for each model using minimum risk decision making, and the red line near the top is the loss incurred without using any fraud detection. Dashed lines indicate the relative number of fraudulent transactions (decision/truth).</div>
+          </div>
+
+          <div class="fig-sm">
+            <a href="images/cost-anly-norisk.png" target="_blank"><img src="images/cost-anly-norisk.png"></a>
+            <div class="description">Figure 7: The same loss curves as in figure 6, but with a greater range for <i>C<sub>in</sub></i>. The two addition lines (red and purple) represent the loss incurred using only model predictions, without minimum risk decision making (-nomin in legend), but still using calibrated probabilities.</div>
+          </div>
+        </div>
+
+        <p>A comparison of losses incurred using risk minimization from calibrated vs. uncalibrated probabilities are presented in figures 8 and 9 (below). Making minimum risk decisions without probability calibrations resulted in greater losses and and many more false positives for the range of <i>C<sub>in</sub></i> plotted.</p>
+
+        <!-- Figures 8 and 9 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/cost-anly-cal2.png" target="_blank"><img src="images/cost-anly-cal2.png"></a>
+            <div class="description">Figure 8: Total loss for each model using minimum risk decision making, based on calibrated probabilities. The descriptions in figure 6 apply.</div>
+          </div>
+
+          <div class="fig-sm">
+            <a href="images/cost-anly-nocal.png" target="_blank"><img src="images/cost-anly-nocal.png"></a>
+            <div class="description">Figure 9: Total loss for each model using minimum risk decision making, using <i>un</i>calibrated probabilities. The descriptions in figure 6 apply.</div>
+          </div>
+        </div>
+
+        <p>&nbsp;</p>
+      </div>
+    </div>
+
+
+    <div id="conclusions" class="content-block">
+      <div class="content-block-inner">
+        <h2>CONCLULSIONS</h2>
+
+        <p>A fraud detetection system that uses Bayesian minimum risk can lead to significant savings when compared to using model predictions alone, and it is important to have properly calibrated probabilities when doing so. Both the NN and RF models appear to have very similar loss for most <i>C<sub>in</sub></i> values when using this method, but the RF has slightly lower loss for much of the range. Regardless, choosing a model should be determined after knowing the precise value of <i>C<sub>in</sub></i>, as well as how many false negatives and false positives are acceptable.</p>
+      </div>
+    </div>
+
+
+    <div id="limits" class="content-block">
+      <div class="content-block-inner">
+        <h2>LIMITATIONS</h2>
+
+        <p>The dataset was relatively small with very few instances of fraud, which means the performance of models could have high variance when predicting new data. The small number of positive instances also imposes some limitations on probability calibrations, possibly hindering the performance of risk minimization.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+    
+
+    <!-- Contact -->
+    <div id="contact" class="content-block">
+      <!-- <?php include 'contact.php';?> -->
+      <h2>Contact</h2>
+      <br>
+      <form class="contact-form" role="form" method="post" action="http://formspree.io/michael@mxcrown.com">
+        <input type="hidden" name="_subject" value="MXC Contact" />
+        <input type="hidden" name="_next" value="#contact" />
+        <input type="hidden" name="_format" value="plain" />
+        <div id="name-group" class="form-group">
+          <div class="col-sm-10">
+            <input type="text" id="name" name="name" placeholder="Name" value="">
+          </div>
+        </div>
+        <div id="email-group" class="form-group">
+          <div>
+            <input type="email" id="email" name="email" placeholder="Email Address" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <textarea rows="4" name="message" placeholder="Message"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="human">2 &times; 4 = ?</label>
+          <div>
+            <input type="text" id="human" placeholder="Your Answer">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <input id="submit" type="submit" value="Send">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <!-- Will be used to display an alert to the user -->
+          </div>
+        </div>
+      </form>
+    </div>
+
+
+    <!-- {% include footer.html %} -->
+    <div class="footer">
+      <hr />
+      <div class="footer-link">
+        <a href="https://github.com/{{ site.author.github }}"><i class="fa fa-github" aria-hidden="true"></i></a>
+
+        <a href="mailto:{{ site.author.email }}"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+
+      </div>
+      &copy; 2016 Michael Crown. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+

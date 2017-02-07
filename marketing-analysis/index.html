@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- {% include head.html %} -->
+<head>
+  <title>Michael Crown: Marketing Campaign Analysis</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Michael Crown - Marketing Campaign Analysis" />
+  <!-- <meta property="og:url" content="" /> -->
+  <meta property="og:site_name" content="Michael Crown" />
+
+  <!-- MathJax -->
+  <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../styles.css" type="text/css">
+  <link rel="stylesheet" href="../contact-styles.css" type="text/css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <script   src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+  <script src="../functions.js"></script>
+
+
+  <!-- <link rel="alternate" type="application/rss+xml" title="RSS Feed for {{ site.name }}" href="{{ site.baseurl }}/feed.xml" /> -->
+  <!-- {% seo %} -->
+
+
+  <!-- {% include google-analytics.html %} -->
+
+</head>
+<body>
+  <div class="content-container"> <!-- change to 2rem padding -->
+    <!-- {{ content }} -->
+    <!-- {% include header.html %} -->
+    <header class="header">
+      <h1 class="header-title">
+        <img src="../images/logo.png">
+        <a href="https://mxcrown.github.io">Michael Crown</a>
+        <br>
+        <span>data scientist</span>
+      </h1>
+      <nav class="header-nav">
+        <a href="/#who">About</a>
+        <a href="/#projects">Projects</a>
+        <a href="https://github.com/mxcrown">Github</a>
+      </nav>
+    </header>
+
+    <!-- Executive Summary -->
+    <div id="exec" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h1>Marketing Campaign Analysis</h1>
+        <h2 class='sub'>Inferring the effects of marketing channel expenditures and gender targeting on unit sales</h2>
+        <br>
+
+        <h3>Executive Summary</h3>
+        <p>This report summarizes the analysis and modeling results of a study to infer the effects of per-channel marketing expenditures on unit sales, with and without the condition of gender targeting. The channels used in the analysis are Adsense display ads, Pinterest promoted pins, and Facebook news feed ads.</p>
+
+        <p><b>Analysis:</b> Methods of analysis include multiple linear regression, t-tests, F-tests, confidence intervals, and cross-correlation. Primary results and figures are in the Results section, and all figures, tables and calculations can be found in the appendix.</p>
+
+        <p><b>Results and Conclusions:</b> In the context of this study, results show that the best performing channel (without considering gender) is Adsense, and the weakest performer is Pinterest. Men are most responsive to Adsense, and are generally unresponsive to promoted pins. Women respond well to both Facebook and Pinterest, and less to Adsense. Cross-correlation shows that the expected time to conversion is one week.</p>
+
+        <p>This study concludes that the marketing budget can be allocated more effectively, especially for Adsense and Pinterest campaigns.</p>
+
+        <p><b>Recommendations:</b>
+          <ul>
+            <li>For male targeting, significantly decrease spending on Pinterest, and increase on Adsense.</li>
+            <li>For female targeting, Increase spending on Facebook and Pinterest, and decrease on Adsense.</li>
+          </ul>
+        </p>
+
+        <p><b>Limitations:</b> There are many lurking variables in this study that can affect conversion rates for advertisements. A major subset of these fall under conversion tracking: there is no attribution, contextual data, or information about ad content for various campaigns.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Outline -->
+    <div id="outline" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>Outline</h2>
+        <ol>
+          <li><a id="intro-a">Introduction</a></li>
+          <li><a id="questions-a">Questions</a></li>
+          <li><a id="data-a">Data</a></li>
+          <li><a id="anly-a">Analysis &amp; Modeling</a></li>
+          <li><a id="results-a">Results</a></li>
+          <li><a id="conclusions-a">Conclusions</a></li>
+          <li><a id="recommendations-a">Recommendations</a>
+          <li><a id="limits-a">Limitations</a></li>
+        </ol>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Introduction -->
+    <div id="intro" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>INTRODUCTION</h2>
+        <p>This report summarizes the primary analysis and statistical modeling results of a study involving 104 weeks of online marketing campaigns. The primary goal of this analysis is to use multiple regression to infer the effects of marketing expenditures on unit sales across three marketing channels, both with and without the condition of gender targeting. The secondary goal is to estimate the expected time to conversion using cross-correlation.</p>
+
+        <p>Two related datasets are used: The first contains week number, weekly spending for three different marketing channels, and the gender targeted in each campaign. The second contains week number and weekly unit sales (the response variable).</p>
+      </div>
+    </div>
+    <!-- Introduction -->
+    <div id="questions" class="content-block">
+      <div class="content-block-inner">
+        <h2>QUESTIONS</h2>
+        <p>The questions that motivated this study are:
+          <ol>
+            Primary questions:
+            <li>
+              Is there a relationship between marketing channel spending and sales?
+              <ul>
+                <li>Is at least one of the channels useful in predicting sales?</li>
+                <li>Do all or only subset of channels have an effect?</li>
+                <li>How well do the models fit the data?</li>
+              </ul>
+            </li>
+            <li>
+              What is the expected time to conversion following a campaign?
+              <ul>
+                <li>Time measured in weeks.</li>
+              </ul>
+            </li>
+          
+            Secondary questions:
+            <li>By what magnitude does each channel affect sales?</li>
+            <li>Which channels have the most positive effects?</li>
+            <li>How accurate are the parameter estimates?</li>
+            <li>How does gender affect sales? (overall and per channel)</li>
+            <li>Is the true relationship linear?</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+
+    <div id="data" class="content-block">
+      <div class="content-block-inner">
+        <h2>DATA</h2>
+        <p>
+          The dataset for this project is comprised of two tables (dset1 and dset2) in CSV format, both from a 104 week sample. The first (dset1) has five columns:
+          <ol>
+            <li><i>week</i>: the week number</li>
+            <li><i>ads</i>: dollars spend on the Adsense channel</li>
+            <li><i>pin</i>: dollars spent on Pinterest channel</li>
+            <li><i>fb</i>: dollars spent on Facebook channel</li>
+            <li><i>gender</i>: the gender targeted</li>
+          </ol>
+
+          Each row represents a single campaign during the week, with two campaigns per week, for a total of 208 rows. There are 15 null values in the gender column that are treated as a lack of gender targeting in those campaigns (i.e. gender-neutral).
+        </p>
+
+        <p>The second table (dset2) has two columns: week and units_sold (number of units sold that week), and 104 rows &mdash; one for each week of unit sales. There are no dates specified, only week number.</p>
+      </div>
+    </div>
+
+    <div id="anly" class="content-block">
+      <div class="content-block-inner">
+        <h2>ANALYSIS</h2>
+
+        <h3>Preprocessing</h3>
+        <p>Before modeling, the data needed to be in a merged form that allows creation of gender-specific and gender-neutral models. To combine the sets, the spending and gender columns needed to be merged with unit sales according to week number. This merge was done with a simple inner join using the week number as the key, resulting in a single array with 208 rows and six columns (see table 1). This array was name dset and served as a master set for creating the ones to be used in the actual modeling process.</p>
+
+        <!-- Data Table Head -->
+        <div class="description">Table 1: The first five rows of the merged raw data.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>week</th>
+                <th>ads</th>
+                <th>pin</th>
+                <th>fb</th>
+                <th>gender</th>
+                <th>units_sold</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>0</th>
+                <td>1.0</td>
+                <td>11.89</td>
+                <td>70.77</td>
+                <td>259.24</td>
+                <td>0.0</td>
+                <td>119.0</td>
+              </tr>
+              <tr>
+                <th>1</th>
+                <td>1.0</td>
+                <td>128.72</td>
+                <td>243.59</td>
+                <td>19.99</td>
+                <td>1.0</td>
+                <td>119.0</td>
+              </tr>
+              <tr>
+                <th>2</th>
+                <td>2.0</td>
+                <td>137.10</td>
+                <td>170.12</td>
+                <td>48.96</td>
+                <td>0.0</td>
+                <td>112.0</td>
+              </tr>
+              <tr>
+                <th>3</th>
+                <td>2.0</td>
+                <td>17.52</td>
+                <td>136.84</td>
+                <td>379.36</td>
+                <td>1.0</td>
+                <td>112.0</td>
+              </tr>
+              <tr>
+                <th>4</th>
+                <td>3.0</td>
+                <td>260.47</td>
+                <td>143.52</td>
+                <td>276.07</td>
+                <td>0.0</td>
+                <td>133.0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <p>The second step was to create a gender-neutral data frame (df<sub>n</sub>) with rows of the same week number summed for weekly total spending. This was achieved by grouping the data by week and using summation as the aggregate function, then dropping the gender column. This left the unit sales for every week doubled &mdash; a problem that was corrected by dividing all unit_sales values by two.</p>
+
+        <p>Before creating the gender-specific sets, cross-correlation was performed on df<sub>n</sub>, which is described in the next section, where construction of gendered sets is described.</p>
+
+        <h3>Exploratory Analysis</h3>
+        <p>Because least squares regression requires statistical independence between predictors, this condition was verified by computing the Pearson correlation coefficient on all predictors (see figure 1). Cross-correlation was performed on unit sales against each of the channels in df<sub>n</sub> using using the signal correlation function available in the Python SciPy package. The results showed that correlation was highest for all channels at the -1 lag, which indicates a one week time to conversion. The plotted results of the cross-correlations are below.</p>
+
+        <!-- Heatmap and Cross-corr plots -->
+        <!-- Figures 1 and 2 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/heat-map.png" target="_blank"><img src="images/heat-map.png"></a>
+            <div class="description">Figure 1: Heat map of the correlation matrix for ad spending on the three marketing channels. Using the scale on the right, it is evident that the correlation between channels is nearly zero.</div>
+          </div>
+
+          <div class="fig-sm">
+            <a href="images/cross-corr.png" target="_blank"><img src="images/cross-corr.png"></a>
+            <div class="description">Figure 1: Cross-correlation plots for unit sales vs. marketing channel spend. From top to bottom: Ads, Pin, FB; left: full lag range; right: plus/minus 4 weeks of lag.</div>
+          </div>
+        </div>
+
+        <p>Because the cross-correlations show a lag of one week, df<sub>n</sub> units_sold were shifted one week to account for the offset. The first step in creating the male and female sets (df<sub>m</sub> and df<sub>f</sub>, respectively) was to create a copy of dset with units_sold shifted up by two weeks (there are two entries per week number). The second step was to filter this set by gender, setting df<sub>m</sub> and df<sub>f</sub> equal to their respective filtered results, and dropping the gender column. The indices on df<sub>m</sub> and df<sub>f</sub> were reset to generic row numbers.</p>
+
+        <p>The following scatter plots were produced to gain some visual insight into the relationship between unit sales and each channel, for gender-neutral and gender-specific:</p>
+
+        <!-- Figure 3: grid of scatters -->
+        <div class="figures">
+          <div class="fig">
+            <a href="images/scatters-noline.png" target="_blank"><img src="images/scatters-noline.png"></a>
+            <div class="description">Figure 1: Scatter plots of unit sales vs. ad spend, by gender and channel. Top to bottom: neutral, male, female. Left to right: Ads, Pin, FB.</div>
+          </div>
+        </div>
+
+        <h3>Modeling</h3>
+        <p>A total of 12 models were fitted to the data &mdash; four for each of df<sub>m</sub>, df<sub>f</sub>, and df<sub>n</sub>: three bivariate models (one for each channel) and one multivariate model using all channels. These were fitted using an ordinary least squares regression algorithm I wrote (found <a href="https://github.com/mxcrown/multiregress/blob/master/multi_regress.py">here</a>).</p>
+
+        <p>The models output descriptive statistics (see Evaluation) and the estimated parameters <i>b<sub>i</sub></i>. The model parameters are the values of interest for answering the first question posed in this study. The estimates for the multivariate models are below.</p>
+
+        <div class="description">Table 2: The estimated parameters for the multivariate models.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>Neutral</th>
+                <th>Male</th>
+                <th>Female</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>b<sub>0</sub></th>
+                <td>-2.862018</td>
+                <td>91.366817</td>
+                <td>78.718772</td>
+              </tr>
+              <tr>
+                <th>b<sub>1</sub></th>
+                <td>0.143175</td>
+                <td>0.172782</td>
+                <td>0.041876</td>
+              </tr>
+              <tr>
+                <th>b<sub>2</sub></th>
+                <td>0.115655</td>
+                <td>0.045164</td>
+                <td>0.188009</td>
+              </tr>
+              <tr>
+                <th>b<sub>3</sub></th>
+                <td>0.168091</td>
+                <td>0.134592</td>
+                <td>0.128299</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <p>The <i>b<sub>0</sub></i> value indicates the expected baseline sales with no money spent on advertising, and the values <i>b<sub>1</sub>-b<sub>3</sub></i> indicate the expected number of unit sales for every dollar spent on a specific channel. As an example, <i>b<sub>1</sub></i> = 0.17 means that a spend of $100 on Adsense in the gender-neutral model is expected to generate sales of 17 units, independent of other channels.</p>
+
+
+        <h3>Evaluation</h3>
+        <p>To evaluate the the multivariate models, ANOVA with unconstrained and incremental F-tests were used, and the bivariate models were evaluated using t-tests. The fits of all models were measured using R<sup>2</sup> and adjusted R<sup>2</sup>. The results of the unconstrained F-tests are in the tables below.</p>
+
+        <div class="description">Table 3: ANOVA and unconstrained F-test results for the gender-neutral model, values rounded to two decimal places.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>SS</th>
+                <th>DF</th>
+                <th>MS</th>
+                <th>F</th>
+                <th>p-value</th>
+                <th>R<sup>2</sup></th>
+                <th>R<sup>2</sup><sub>adj</sub></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Regresion</th>
+                <td>53677.99</td>
+                <td>3.0</td>
+                <td>17892.66</td>
+                <td>141.90</td>
+                <td>2.22e-16</td>
+                <td>0.81</td>
+                <td>0.81</td>
+              </tr>
+              <tr>
+                <th>Error</th>
+                <td>12483.47</td>
+                <td>99.0</td>
+                <td>126.10</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <th>Total</th>
+                <td>66161.46</td>
+                <td>102.0</td>
+                <td>648.64</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="description">Table 4: ANOVA and unconstrained F-test results for the male model, values rounded to two decimal places.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>SS</th>
+                <th>DF</th>
+                <th>MS</th>
+                <th>F</th>
+                <th>p-value</th>
+                <th>R<sup>2</sup></th>
+                <th>R<sup>2</sup><sub>adj</sub></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Regresion</th>
+                <td>25979.75</td>
+                <td>3.0</td>
+                <td>8659.92</td>
+                <td>24.62</td>
+                <td>1.75e-11</td>
+                <td>0.45</td>
+                <td>0.43</td>
+              </tr>
+              <tr>
+                <th>Error</th>
+                <td>32356.49</td>
+                <td>92.0</td>
+                <td>351.70</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <th>Total</th>
+                <td>58336.24</td>
+                <td>95.0</td>
+                <td>614.07</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="description">Table 5: ANOVA and unconstrained F-test results for the female model, values rounded to two decimal places.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>SS</th>
+                <th>DF</th>
+                <th>MS</th>
+                <th>F</th>
+                <th>p-value</th>
+                <th>R<sup>2</sup></th>
+                <th>R<sup>2</sup><sub>adj</sub></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Regresion</th>
+                <td>20147.50</td>
+                <td>3.0</td>
+                <td>6715.83</td>
+                <td>14.40</td>
+                <td>1.94e-07</td>
+                <td>0.32</td>
+                <td>0.30</td>
+              </tr>
+              <tr>
+                <th>Error</th>
+                <td>41983.90</td>
+                <td>90.0</td>
+                <td>466.49</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <th>Total</th>
+                <td>62131.40</td>
+                <td>93.0</td>
+                <td>668.08</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <p>The F-tests were two-sided hypothesis tests of the form:<br><br>
+        <i>
+        H<sub>0</sub>: β<sub>1</sub> = β<sub>2</sub> = β<sub>3</sub> = 0<br>
+        H<sub>A</sub>: At least one β<sub>i</sub> ≠ 0</i></p>
+
+        <p>Where <i>β<sub>i</sub></i> are the true parameters. In other words, test the null hypothesis (<i>H<sub>0</sub></i>) that there is no relationship between the amounts spent on any of the marketing channels and unit sales. The alternative hypothesis (<i>H<sub>A</sub></i>) is that there is a relationship between the amount spent on at least one of the marketing channels and unit sales.</p>
+
+        <p>The incremental F-tests were similar, but they tested multivariate models excluding each of the channels, one at a time. This served to estimate the impact of each channel on the complete multivariate models, and determine if any were unimportant. The outcome of the incremental tests are discussed in the results section. Each incremental model kept two of the channels, and tests with only one channel were done in the bivariate models using t-tests. The pairs tested were therefore {(ads, pin), (ads, fb), (pin, fb)}. Using ANOVA results, 95% confidence intervals were constructed for the three multivariate models (see Results).</p>
+      </div>
+    </div>
+
+    <div id="results" class="content-block">
+      <div class="content-block-inner">
+        <h2>RESULTS</h2>
+        <p>The estimated parameters for the multivariate models give the following equations for the three models, rounded to three decimal places:</p>
+
+        <!-- LATEX Eqns -->
+        <p><i>
+          y&#770;<sub>n</sub> = -2.862 + 0.143 x<sub>ads</sub> + 0.116 x<sub>pin</sub> + 0.168 x<sub>fb</sub>
+          <br>
+          y&#770;<sub>m</sub> = 91.367 + 0.173 x<sub>ads</sub> + 0.045 x<sub>pin</sub> + 0.135 x<sub>fb</sub>
+          <br>
+          y&#770;<sub>f</sub> = 78.719 + 0.042 x<sub>ads</sub> + 0.188 x<sub>pin</sub> + 0.128 x<sub>fb</sub>
+        </i></p>
+
+        <p>The <i>y&#770;</i> values are the estimated number of units sold in response to spending on the three channels, <i>x<sub>ads</sub>, x<sub>pin</sub></i>, and <i>x<sub>fb</sub></i> in each model. These equations produce hyperplanes that cannot be graphed, but the lines of best fit from the bivariate models are graphed over the scatter plots from figure 3, and their equations are displayed in the legends:</p>
+
+        <!-- Figures 4, 5 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/scatters-line.png" target="_blank"><img src="images/scatters-line.png"></a>
+            <div class="description">Figure 4: Scatter plots for gender/channel pairs of unit sales vs. ad spend (in dollars). The red line is the estimated bivariate linear relationship for each pair.</div>
+          </div>
+
+          <div class="fig-sm">
+            <a href="images/residuals.png" target="_blank"><img src="images/residuals.png"></a>
+            <div class="description">Figure 5: Residual plots for each gender/channel pair. The overall randomness indicates a linear relationship is likely, rather than a non-linear one.</div>
+          </div>
+        </div>
+
+        <p>As was seen in tables 3-5, all models have p-values very nearly or precisely zero, which is strong evidence against the null hypothesis. For the multivariate models, this means there is strong evidence to suggest that at least one of the marketing channels has a linear relationship with unit sales for all three data sets. This says nothing about which, or if all of them have such a relationship. The results of the incremental models, however, give strong evidence (p < 0.001) that there is a linear relationship between all of the marketing channels and unit sales for all three sets, except for a slightly higher p-value (p = 0.0055) for the (ads, fb) model using the female set.</p>
+
+        <p>The 95% confidence intervals were constructed using the standard errors of the parameter estimates for each unconstrained model, and are shown as error bars with the estimated values in the following figure:</p>
+
+        <!-- Figure 6 -->
+        <div class="figures">
+          <div class="fig">
+            <a href="images/conf-intervals.png" target="_blank"><img src="images/conf-intervals.png"></a>
+            <div class="description">Figure 6: Parameter estimes for each channel and model are plotted with error bars; the error bars are scaled to the 95% confidence intervals for each estimate.</div>
+          </div>
+        </div>
+
+        The interpretation of these intervals is that there is a 95% probability that each of these intervals contains the value of the true parameter <i>β<sub>i</sub></i>. As an example, there is a 95% chance that the actual number of units that can be expected to sell for every dollar spent on Adsense is between 11.9 and 16.8 for the gender-neutral model.
+      </div>
+    </div>
+
+    <div id="conclusions" class="content-block">
+      <div class="content-block-inner">
+        <h2>CONCLUSIONS</h2>
+        <p>There is strong evidence to suggest that there are linear relationships between the number of dollars spent on each marketing channel and unit sales. Results suggest that the expected number of unit sales per dollar spent can be ranked (best to worst) as follows:</p>
+
+        <p>
+          Neutral:  (Facebook, Adsense, Pinterest)<br>
+          Male: (Adsense, Facebook, Pinterest)<br>
+          Female: (Pinterest, Facebook, Adsense)
+        </p>
+
+        <p>Men are generally unresponsive to promoted pins, and most responsive to Adsense. Women are very responsive to promoted pins, and mostly unresposive to Adsense. The results of cross-correlation show that the expected time to conversion is one week for all channels.</p>
+
+        <p>The confidence intervals are small enough for the gender-neutral model to have some confidence about the expected response without factoring in gender, while the intervals are large for the gender-specific sets. Because of the large gender-specific intervals, results should be used with some caution. This is unsurprising with no attribution of sales to specific campaigns, which would give more insight into gender response differences. An analysis of a dataset that accounts for more variables (see Recommendations) &mdash; or at least a wider range of spending &mdash; could help produce estimates with narrower intervals.</p>
+      </div>
+    </div>
+
+    <div id="recommendations" class="content-block">
+      <div class="content-block-inner">
+        <h2>RECOMMENDATIONS</h2>
+        <p>The first two recommendations are suggestions that should increase ROI for future ad campaigns, and the last is a suggestion that will lead to stronger, more useful analyses in the future.</p>
+
+        <ul>
+          <li>For male targeting, significantly decrease spending on Pinterest, and increase on Adsense. Even with a large confidence interval, it is clear that Pinterest is not performing well for the male audience.</li>
+          <li>For female targeting, Increase spending on Facebook and Pinterest equally, and decrease spending on Adsense.</li>
+          <li>When adjusting budgets on channels, maintain a wide range of spending; this will help with future analyses. For example, if you increase the average amount spent on Adsense from m1 to m2, maintain a variance of a range of m2 ± s1.</li>
+          <li>Implement conversion tracking with attribution to gain insights about performance of ads by context, layout, and effects of unique visitors coming from multiple ads. Conversion tracking will also help to better understand relationships between sales and targeting metrics.</li>
+          <li>When possible, use more specific targeting metrics, such as age, location, income, and interests.</li>
+          <li>Re-evaluate the performance of campaigns after collecting 36-52 weeks of more detailed data.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="limits" class="content-block">
+      <div class="content-block-inner">
+        <h2>LIMITATIONS</h2>
+        <p>There are many lurking variables in this study that can affect conversion rates for advertisements, and that are unaccounted for in the models presented here. A major subset of these variables fall under conversion tracking: there is no attribution, contextual data, or information about ad content for various campaigns. If this data were available, it could help produce superior models.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+    
+
+    <!-- Contact -->
+    <div id="contact" class="content-block">
+      <!-- <?php include 'contact.php';?> -->
+      <h2>Contact</h2>
+      <br>
+      <form class="contact-form" role="form" method="post" action="http://formspree.io/michael@mxcrown.com">
+        <input type="hidden" name="_subject" value="MXC Contact" />
+        <input type="hidden" name="_next" value="#contact" />
+        <input type="hidden" name="_format" value="plain" />
+        <div id="name-group" class="form-group">
+          <div class="col-sm-10">
+            <input type="text" id="name" name="name" placeholder="Name" value="">
+          </div>
+        </div>
+        <div id="email-group" class="form-group">
+          <div>
+            <input type="email" id="email" name="email" placeholder="Email Address" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <textarea rows="4" name="message" placeholder="Message"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="human">2 &times; 4 = ?</label>
+          <div>
+            <input type="text" id="human" placeholder="Your Answer">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <input id="submit" type="submit" value="Send">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <!-- Will be used to display an alert to the user -->
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- {% include footer.html %} -->
+    <div class="footer">
+      <hr />
+      <div class="footer-link">
+        <a href="https://github.com/{{ site.author.github }}"><i class="fa fa-github" aria-hidden="true"></i></a>
+
+        <a href="mailto:{{ site.author.email }}"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+
+      </div>
+      &copy; 2016 Michael Crown. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+

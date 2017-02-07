@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- {% include head.html %} -->
+<head>
+  <title>Michael Crown</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Michael Crown - data scientist" />
+  <!-- <meta property="og:url" content="http://www.claireculley.com/" /> -->
+  <meta property="og:site_name" content="Michael Crown" />
+  
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css" type="text/css">
+  <link rel="stylesheet" href="contact-styles.css" type="text/css">
+
+  <!-- Font -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+  <script src="functions.js"></script>
+
+  <!-- Load the Paper.js library -->
+  <script type="text/javascript" src="assets/paperjs/docs/assets/js/paper.js"></script>
+  <script type="text/paperscript" canvas="myCanvas" src="js/metaballs.js"></script>
+
+
+  <!-- <link rel="alternate" type="application/rss+xml" title="RSS Feed for {{ site.name }}" href="{{ site.baseurl }}/feed.xml" /> -->
+  <!-- {% seo %} -->
+
+
+  <!-- {% include google-analytics.html %} -->
+
+</head>
+<body>
+  <div id="canvas-div">
+    <canvas id="myCanvas" resize="true"></canvas>
+  </div>
+
+  <div class="content-container"> <!-- change to 2rem padding -->
+    <!-- {{ content }} -->
+    <!-- {% include header.html %} -->
+    <header class="header">
+      <h1 class="header-title">
+        <img src="images/logo.png">
+        <a href="https://mxcrown.github.io">Michael Crown</a>
+        <br>
+        <span>data scientist</span>
+      </h1>
+      <nav class="header-nav">
+        <a href="/#who">About</a>
+        <a href="/#projects">Projects</a>
+        <a href="https://github.com/mxcrown">Github</a>
+      </nav>
+    </header>
+
+    <div id="top-content" class="content-block">
+      <div id="initial-nav">
+        <div>
+          1 &mdash; <a id="who-a">Who I am / What I do</a>
+          <br>
+          2 &mdash; <a id="abilities-a">My abilities</a>
+          <br>
+          3 &mdash; <a id="projects-a">A collection of my work</a>
+          <br>
+          4 &mdash; <a id="contact-a">Contact me</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Who / What -->
+    <div id="who" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <!-- some text about me -->
+        <h3>Who I am</h3>
+        <p>A scientist, a mathematician, a programmer and an artist. Together, these four traits make me a problem solver and a creator &mdash; I get a thrill from crafting algorithms, and I love solving difficult problems. I graduated with degrees in physics and mathematics; two subjects that I am passionate about, and that introduced me to the power of data and statistical analysis.</p>
+
+        <h3>What I do</h3>
+        <p> Most of the time I am up to my eyebrows in data, exploring and transforming it in preparation for whatever machine learning algorithms I will feed the data to, ensuring optimal results. This nearly always entails a great deal of transformations and engineering, creating visualizations, computing statistics, and writing some new code. The rest of the time I am tweaking and testing said algorithms, improving the system further. The end product is a refined pipeline that ingests data in it's native form, and outputs desired results.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- My Abilities -->
+    <div id="abilities" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <!-- some text about me -->
+        <h3>Abilities</h3>
+        <br>
+        <h4>Satistical Analysis &amp; Machine Learning</h4>
+        <p><strong>The nutshell</strong> &mdash; I am capable of working on a wide variety of problems, with data sets that are either raw or clean, big or small. I recommend looking at some of <a href="projects">my projects</a> for specific examples.</p>
+
+        <p>A few business-relevant topics that fall within my abilities:
+
+        <ul>
+          <li>Marketing and sentiment analysis</li>
+          <li>Time series anlaysis and forecasting</li>
+          <li>Fraud detection</li>
+          <li>Risk minimization</li>
+          <li>User preference learning</li>
+          <li>User classification</li>
+          <li>Predictive analytics</li>
+          <li>Optimization problems</li>
+        </ul>
+        
+        </p>
+
+        <p><strong>The jargon</strong> &mdash; Some terms relevant to my abilities are: regression, classification, optimization, cluster analysis, time series, ANOVA, data exploration, pre-processing, feature engineering, working with data imbalance, categorical with many levels, sparse matrices.</p>
+
+        <p>I am familiar with many machine learning algorithms, but my favorites are Artificial Neural Networks, Random Forest Classifiers and Naive Bayes. I generally aviod Support Vector Machines, because of their painfully slow training time.</p>
+        <br>
+
+        <h4>Programming</h4>
+        <p>I can develop just about anything using <i>Python</i> and it's packages &mdash; including (but not limited to) <i>Theano</i>, <i>Scikit-Learn</i>, <i>NumPy</i>, <i>Pandas</i>, <i>Requests</i> and <i>Matplotlib</i>. I am fully capable of setting up and querrying <i>SQL</i> databases, and I have a great deal of experience with web-oriented languages.</p>
+
+        <p>A few of my coding projects can be found below, along with some of my data projects.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- My Projects -->
+    <div id="projects" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h3>My Projects</h3>
+        <p>The links below lead to pages with the contents of semi-formal reports for some of my projects. In the case of the coding projects, each page contains a summary of the program with an outline of some features and a link to the code on github.</p>
+
+        <h4>Data Projects</h4>
+        <a href="/ccfraud">Credit Card Fraud Detection &amp; Cost Minimization</a>
+        <p>Detecting fraudulent transactions and using Bayesian minimum risk with calibrated probabilities for decision making.</p>
+
+        <a href="/bcancer-diagnostics">Naive Bayes for Breast Cancer Diagnostics</a>
+        <p>Testing a Guassian Naive Bayes Classifier by diagnosing cell masses as benign or malignant, and evaluating feature importances.</p>
+
+        <a href="/walmart-sales-forecasting">ARIMA Models for Walmart Sales Forecasting</a>
+        <p>An automated method of producing sales forecasts for approximately three thousand individual departments, using 75 ARIMA models.</p>
+
+        <a href="/marketing-analysis">Marketing Campaign Anlaysis</a>
+        <p>Inferring the effects of marketing channel spending and gender targeting on unit sales, using multiple regession analysis.</p>
+
+        <h4>Coding Projects</h4>
+        <a href="/convnet">GPU Accelerated Convolutional Neural Networks</a>
+        <p>A full-featured program to construct, train, and evaulate convolutional or fully-connected neural networks.</p>
+
+        <a href="/nbayes">Naive Bayes Classifier</a>
+        <p>A program for classification using quantitative and qualitative data using Naive Bayes.</p>
+
+        <a href="/multiregress">Multiple Regression Algorithm</a>
+        <p>Performs OLS multiple regression, ANOVA, F-tests, and t-tests.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Contact -->
+    <div id="contact" class="content-block">
+      <!-- <?php include 'contact.php';?> -->
+      <h3>Contact</h3>
+      <br>
+      <form class="contact-form" role="form" method="post" action="http://formspree.io/michael@mxcrown.com">
+        <input type="hidden" name="_subject" value="MXC Contact" />
+        <input type="hidden" name="_next" value="#contact" />
+        <input type="hidden" name="_format" value="plain" />
+        <div id="name-group" class="form-group">
+          <div class="col-sm-10">
+            <input type="text" id="name" name="name" placeholder="Name" value="">
+          </div>
+        </div>
+        <div id="email-group" class="form-group">
+          <div>
+            <input type="email" id="email" name="email" placeholder="Email Address" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <textarea rows="4" name="message" placeholder="Message"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="human">2 &times; 4 = ?</label>
+          <div>
+            <input type="text" id="human" placeholder="Your Answer">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <input id="submit" type="submit" value="Send">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <!-- Will be used to display an alert to the user -->
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- {% include footer.html %} -->
+    <div class="footer">
+      <hr />
+      <div class="footer-link">
+        <a href="https://github.com/{{ site.author.github }}"><i class="fa fa-github" aria-hidden="true"></i></a>
+
+        <a href="mailto:{{ site.author.email }}"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+
+      </div>
+      &copy; 2016 Michael Crown. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+

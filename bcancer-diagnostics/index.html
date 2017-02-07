@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- {% include head.html %} -->
+<head>
+  <title>Michael Crown: Testing a Naive Bayes Program on Breast Cancer Diagnostics</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Michael Crown - Testing a Naive Bayes Program on Breast Cancer Diagnostics" />
+  <!-- <meta property="og:url" content="" /> -->
+  <meta property="og:site_name" content="Michael Crown" />
+
+  <!-- MathJax -->
+  <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="../styles.css" type="text/css">
+  <link rel="stylesheet" href="../contact-styles.css" type="text/css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <script   src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+  <script src="../functions.js"></script>
+
+
+  <!-- <link rel="alternate" type="application/rss+xml" title="RSS Feed for {{ site.name }}" href="{{ site.baseurl }}/feed.xml" /> -->
+  <!-- {% seo %} -->
+
+
+  <!-- {% include google-analytics.html %} -->
+
+</head>
+<body>
+  <div class="content-container"> <!-- change to 2rem padding -->
+    <!-- {{ content }} -->
+    <!-- {% include header.html %} -->
+    <header class="header">
+      <h1 class="header-title">
+        <img src="../images/logo.png">
+        <a href="https://mxcrown.github.io">Michael Crown</a>
+        <br>
+        <span>data scientist</span>
+      </h1>
+      <nav class="header-nav">
+        <a href="/#who">About</a>
+        <a href="/#projects">Projects</a>
+        <a href="https://github.com/mxcrown">Github</a>
+      </nav>
+    </header>
+
+    <!-- Executive Summary -->
+    <div id="exec" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h1>Testing a Naive Bayes Program on Breast Cancer Diagnostics</h1>
+        <h2 class='sub'>And Examining the Importances of Predictors</h2>
+        <br>
+
+        <h3>Executive Summary</h3>
+        <p>A dataset from UC Irving with attributes describing breast mass cell nuclei characteristics was used to classify masses as benign or malignant. The dataset is a sample of 569 observations, with 357 benign and 212 malignant diagnoses. Many features in this set are highly correlated.</p>
+
+        <p><b>Analysis:</b> A Gaussian Naive Bayes (NB) classifier was used to make diagnoses on two versions of the data: untransformed and PCA-whitened (for decorrelation). For the former, a random forest classifier with 300 estimators was used to select features in by importance and an iterative ten-fold CV scoring process was used to determine the optimum number of top features. The latter set was scored similarly, but the top features were selected by their eigenvalues. The final model was fitted to 67% of the data, and the remaining 33% was used as the test set. Scores evaluated were accuracy, precision, recall, and F1.</p>
+
+        <p><b>Results and Conclusions:</b> The untransformed set performed better than the PCA set, after averaging many ten-fold cross validations (0.912 and 0.863 F1 scores, respectively). The final model had 92.3% accuracy and an F1 score of 0.909 on the test data.</p>
+
+        <p>Using features without any transformation is more successful than PCA whitening, despite high correlation between features. The most successful features for making diagnoses with NB were concave points_worst, radius_worst, area_worst, perimeter_worst, and concave points_mean.</p>
+
+        <p><b>Limitations:</b> Only Naive Bayes was used in this project, and it is possible that other classification methods have better diagnostic accuracy.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Outline -->
+    <div id="outline" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>Outline</h2>
+        <ol>
+          <li><a id="intro-a">Introduction</a></li>
+          <li><a id="questions-a">Questions</a></li>
+          <li><a id="data-a">Data</a></li>
+          <li><a id="anly-a">Analysis &amp; Modeling</a></li>
+          <li><a id="results-a">Results</a></li>
+          <li><a id="conclusions-a">Conclusions</a></li>
+          <li><a id="recommendations-a">Recommendations</a>
+          <li><a id="limits-a">Limitations</a></li>
+        </ol>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Introduction -->
+    <div id="intro" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>INTRODUCTION</h2>
+        <p>A great deal of research has gone into breast cancer, and for good reason: it is a major plight, with approximately 12% of women in the U.S. developing invasive breast cancer in their lifetimes <a href="http://www.breastcancer.org/symptoms/understand_bc/statistics" target="_blank">[1]<i class="fa fa-external-link" aria-hidden="true" style="font-size: 10pt"></i></a>. The purpose of this project was to evaluate the efficacy of Naive Bayes classification for diagnosing malignant breast cancer, and to determine what cell characteristics are most useful for producing diagnoses.</p>
+      </div>
+    </div>
+    <!-- Introduction -->
+    <div id="questions" class="content-block">
+      <div class="content-block-inner">
+        <h2>QUESTIONS</h2>
+        <p>The questions asked going into this study were:
+          <ol>
+            <li>How well can Naive Bayes classification diagnose malignant breast cancer?</li>
+            <li>What cell characteristics are best for producing accurate diagnostics?</li>
+            <li>How do values for malignant masses compare to the benign ones?</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+
+    <div id="data" class="content-block">
+      <div class="content-block-inner">
+        <h2>DATA</h2>
+        <p>UC Irving hosts a variety of data sets, including one of breast cancer diagnostic data — the set used in this project. The dataset has 569 observations, with 357 benign and 212 malignant diagnoses. There are 30 attributes to be used as predictors that describe breast mass cell nuclei characteristics (continuous numerical values) that were computed from digitized images of fine needle aspirations. Along with these predictors, there are values for patient ID and a diagnosis (benign or malignant). Many features in this set are highly correlated, which is typically not ideal for a classifier like NB, where statistical independence between features is a foundational assumption.</p>
+
+        <p>
+          There are ten base metrics used for the predictors, with three variations of each (mean, standard error, and worst):
+          <ol>
+            <li><i>radius</i> (mean of distances from center to points on the perimeter)</li>
+            <li><i>texture</i> (standard deviation of gray-scale values)</li>
+            <li><i>perimeter</i></li>
+            <li><i>area</i></li>
+            <li><i>smoothness</i> (local variation in radius lengths)</li>
+            <li><i>compactness</i> (perimeter^2 / area - 1.0)</li>
+            <li><i>concavity</i> (severity of concave portions of the contour)</li>
+            <li><i>concave points</i> (number of concave portions of the contour)</li>
+            <li><i>symmetry</i></li>
+            <li><i>fractal dimension</i> ("coastline approximation" - 1)</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+
+    <div id="anly" class="content-block">
+      <div class="content-block-inner">
+        <h2>ANALYSIS</h2>
+
+        <h3>Exploratory Analysis</h3>
+        <p>In order to get a feel for the data, and how to proceed, kernel density estimates were plotted for the two diagnosis values. This was done to determine if the data was roughly normally distributed, and to gain some initial insight into which features were more likely to make good predictors. The resulting plots are in the figure below:</p>
+
+        <!-- Figure 1: kde plots -->
+        <div class="figures">
+          <div class="fig">
+            <a href="images/kde.png" target="_blank"><img src="images/kde.png"></a>
+            <div class="description">Figure 1: Kernel density estimates for all features and curves according to class: benign (0) or malignant (1). Each plot is labeled by feature.</div>
+          </div>
+        </div>
+
+        <p>The distributions all appear reasonably normal, despite some skewness. Upon visual inspection, the most promising base features were radius, perimeter, area, concavity and concave points. To make a final decision for feature importances in the raw data, a random forrest classifier was used, and the results are shown in descending order in the following chart:</p>
+
+        <!-- Figure 2: importances -->
+        <div class="figures">
+          <div class="fig">
+            <a href="images/importances-bar.png" target="_blank"><img src="images/importances-bar.png"></a>
+            <div class="description">Figure 2: Bar chart showing ranked estimated feature importances in descending order. Height indicates relative importance.</div>
+          </div>
+        </div>
+
+        <p>These rankings were used as a part of feature selection, the details of which are discussed in the section on modeling.</p>
+
+        <p>Since feature names suggested correlations were likely high (e.g., radius and area), a correlation matrix was computed to check the extent of correlations before modeling. As expected, they were large for many of the features (see figure 2). Because features are ideally independent when modeling with NB, a transformed version of the dataset was created by decorrelating and normalizing the features through PCA whitening (principal component analysis). For modeling, training sets were transformed and the resulting eigenvectors and eigenvalues were used to PCA whiten the test data. The correlation matrices before and after decorrelation are displayed as heat maps in figure 3:</p>
+
+        <!-- Figure 3: corr matrices -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/corr-pca-compare.png" target="_blank"><img src="images/corr-pca-compare.png"></a>
+            <div class="description">Figure 3: Heat maps of the correlation matrix before PCA (left), where the diagonal shows autocorrelation, and after PCA (right). Using the scale, it is evident that there is much correlation between features in the raw data.</div>
+          </div>
+        </div>
+
+        <p>As opposed to feature selection using importances, component selection with the decorrelated data was performed by choosing those with greater eigenvalues. The eigenvalues were computed using NumPy singular value decomposition, which returns values in descending order. Since principal components have no particular meaning in terms of the original features, results will not be presented as they were in figure 2.</p>
+
+        <h3>Modeling</h3>
+        <p>A Gaussian Naive Bayes classifier (found <a href="https://github.com/mxcrown/naivebayes/blob/master/naivebayes.py">here</a>) was used to model both sets, using forward selection of the top ten features. The average of 100 iterations of k-fold cross validation (k=10) for each step of forward selection was recorded. The 100 iterations of k-fold CV were not strictly necessary, but because NB is computationally inexpensive, this was done to reduce the variance of estimated performance. The resulting scores are shown in figures 4 and 5 in the next section, and they show that the raw data gave superior performance when compared to the decorrelated set.</p>
+
+        <p>The final step to the modeling process was to fit 67% of the raw data, and score the remaining 33%. These results will also be shown in the next section.</p>
+
+        <h3>Evaluation</h3>
+        <p>For the raw data, modeling the top five features gave the best results, and the decorrelated data performed best when using only the component with the greatest eigenvalue.</p>
+
+        <!-- Figures 4, 5: results -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/raw-performance.png" target="_blank"><img src="images/raw-performance.png"></a>
+            <div class="description">Figure 4: Scores plotted for forward-selection of the top-10 features from the raw data. The vertical axis indicates the score (accuracy, precision, recall, F1), and the horizonal axis indicates number of features used.</div>
+          </div>
+
+          <div class="fig-sm">
+            <a href="images/dcor-performance.png" target="_blank"><img src="images/dcor-performance.png"></a>
+            <div class="description">Figure 5: Scores plotted for forward-selection of the top-10 components from the PCA whitened data. The vertical axis indicates the score (accuracy, precision, recall, F1), and the horizonal axis indicates number of components used.</div>
+          </div>
+        </div>
+
+        <p>The raw data shows peaks for all metrics, except for recall (peaks at top two), when using the top five features. For this classification problem, recall is a metric of high importance, but the decline from it’s peak is very small (delta = -0.0015) compared to the gain in precision (delta = 0.026).</p>
+
+        <p>For the decorrelated set, the interpretation is not as clear since there is a sizable gain in recall when using the top nine or ten components, though the drop in precision is significant. While it is dangerous to produce false negative diagnoses, it can also be costly (and frightening to patients) to produce false positives, where the latter would occur nearly 21% of the time with the top ten components, compared to 4.5% when using only the most significant component. This presents a more difficult choice for choosing components for modeling.</p>
+
+        <p>Modeling the raw data gives superior results. To that end, the final model used the top five features according to estimated importance.</p>
+
+    <div id="results" class="content-block">
+      <div class="content-block-inner">
+        <h2>RESULTS</h2>
+
+        <p>The final model was fitted to the top 5 features of 67% of the raw data, and scored on the remaining 33%. The results are tabulated below:</p>
+
+        <div class="description">Table 1: Scores achieved on the test set in the final NB model, using the top five features from raw data.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Final Scores</th>
+                <td>0.936</td>
+                <td>0.923</td>
+                <td>0.896</td>
+                <td>0.909</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <p>
+          The scores in table 1 above are promising for such a simple model. While certainly not perfect, other classifiers could likely achieve better results. The scores can be interpreted as follows:
+
+          <ul>
+            <li>Accuracy: 93.6% of the predicted values matched the true value, regardless of diagnosis.</li>
+            <li>Precision: 92.3% of all predicted malignancies were correct, and 7.7% were false positives.</li>
+            <li>Recall: 89.6% of all true malignancies were identified, and 10.4% were incorrectly diagnosed as benign.</li>
+            <li>F1: The harmonic mean of precision and recall.</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+
+    <div id="conclusions" class="content-block">
+      <div class="content-block-inner">
+        <h2>CONCLUSIONS</h2>
+        <p>The performance achieved with raw data and a simple Naive Bayes model was reasonably high, though it is likely that other statistical models or machine learning techniques could improve on these results, and the prediction threshold could also be adjusted to increase the sensitity (recall).</p>
+      </div>
+    </div>
+
+    <div id="limits" class="content-block">
+      <div class="content-block-inner">
+        <h2>LIMITATIONS</h2>
+        <p>Only one type of statistical model was used to produce diagnoses, and the feature selection process was limited to only what a random forest classifier determined were the most important features. Model ensembles and domain knowledge could help improve the modeling process.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+    
+
+    <!-- Contact -->
+    <div id="contact" class="content-block">
+      <!-- <?php include 'contact.php';?> -->
+      <h2>Contact</h2>
+      <br>
+      <form class="contact-form" role="form" method="post" action="http://formspree.io/michael@mxcrown.com">
+        <input type="hidden" name="_subject" value="MXC Contact" />
+        <input type="hidden" name="_next" value="#contact" />
+        <input type="hidden" name="_format" value="plain" />
+        <div id="name-group" class="form-group">
+          <div class="col-sm-10">
+            <input type="text" id="name" name="name" placeholder="Name" value="">
+          </div>
+        </div>
+        <div id="email-group" class="form-group">
+          <div>
+            <input type="email" id="email" name="email" placeholder="Email Address" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <textarea rows="4" name="message" placeholder="Message"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="human">2 &times; 4 = ?</label>
+          <div>
+            <input type="text" id="human" placeholder="Your Answer">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <input id="submit" type="submit" value="Send">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <!-- Will be used to display an alert to the user -->
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- {% include footer.html %} -->
+    <div class="footer">
+      <hr />
+      <div class="footer-link">
+        <a href="https://github.com/{{ site.author.github }}"><i class="fa fa-github" aria-hidden="true"></i></a>
+
+        <a href="mailto:{{ site.author.email }}"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+
+      </div>
+      &copy; 2016 Michael Crown. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+

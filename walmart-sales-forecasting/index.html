@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- {% include head.html %} -->
+<head>
+  <title>Michael Crown: ARIMA Models for Walmart Sales Forecasting</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Michael Crown - ARIMA Models for Walmart Sales Forecasting" />
+  <!-- <meta property="og:url" content="" /> -->
+  <meta property="og:site_name" content="Michael Crown" />
+  
+  <!-- MathJax -->
+  <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'>
+    MathJax.Hub.Config({
+      TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+  </script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../styles.css" type="text/css">
+  <link rel="stylesheet" href="../contact-styles.css" type="text/css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <script   src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+  <script src="../functions.js"></script>
+
+
+  <!-- <link rel="alternate" type="application/rss+xml" title="RSS Feed for {{ site.name }}" href="{{ site.baseurl }}/feed.xml" /> -->
+  <!-- {% seo %} -->
+
+
+  <!-- {% include google-analytics.html %} -->
+
+</head>
+<body>
+  <div class="content-container"> <!-- change to 2rem padding -->
+    <!-- {{ content }} -->
+    <!-- {% include header.html %} -->
+    <header class="header">
+      <h1 class="header-title">
+        <img src="../images/logo.png">
+        <a href="https://mxcrown.github.io">Michael Crown</a>
+        <br>
+        <span>data scientist</span>
+      </h1>
+      <nav class="header-nav">
+        <a href="/#who">About</a>
+        <a href="/#projects">Projects</a>
+        <a href="https://github.com/mxcrown">Github</a>
+      </nav>
+    </header>
+
+    <!-- Executive Summary -->
+    <div id="exec" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h1>Weekly Sales Forecasts Using Non-Seasonal ARIMA Models</h1>
+        <h2 class='sub'>Examining a Method to Reduce the Number of Models Required for Many Time Series</h2>
+        <br>
+
+        <h3>Executive Summary</h3>
+        <p>This report summarizes the process and results of creating one year of department-wise sales forecasts for 45 Walmart stores (over 3,000 individual departments). Because of the large number of time series, forecasts were created using inter-store department averages and transforming results to estimate store-specific department sales.</p>
+
+        <p><b>Analysis:</b> Autoregressive Integrated Moving Average (ARIMA) modeling was used to create one year of weekly forecasts using 2.75 years of sales data, with features for store, department, date, weekly sales, and if the week contains a major holiday. The latter was used as an exogenous variable. Performance was measured using normalized root-mean-square error (NRMSE)</p>
+
+        <p><b>Results and Conclusions:</b> The 75th percentile NRMSE for department-average forecasts was 0.092, and the 75th percentile NRMSE for individual department forecasts was 0.155. In other words, 75 percent of the department-wise forecasts had an average error that was less than 15.5% of the mean sales during that time. While the method used worked well for most individual departments, some had NRMSE > 0.5.</p>
+
+        <p>While it requires more computational resources, it would likely be more effective to model every department within each store individually, which would require 3,331 models for the departments in this set. That said, there are other possibilities for improving results, such as modeling a dataset that contains at least four or five years of sales data.</p>
+
+        <p><b>Limitations:</b>The primary limitation is this projects was the size of the dataset: the entire set consists of only 143 weeks (2.75 years) of data, which prohibited modeling any seasonal component that might exist. There was also missing sales data for some departments.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Outline -->
+    <div id="outline" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>Outline</h2>
+        <ol>
+          <li><a id="intro-a">Introduction</a></li>
+          <li><a id="questions-a">Questions</a></li>
+          <li><a id="data-a">Data</a></li>
+          <li><a id="anly-a">Analysis &amp; Modeling</a></li>
+          <li><a id="results-a">Results</a></li>
+          <li><a id="conclusions-a">Conclusions</a></li>
+          <li><a id="limits-a">Limitations</a></li>
+        </ol>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+    <!-- Introduction -->
+    <div id="intro" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h2>INTRODUCTION</h2>
+
+        <p>Sales forecasting is an important component of modern business, as it helps decision makers anticipate fluctuations in sales that could be costly if missed. Changes in sales can arise from long-term trends, seasonal and non-seasonal effects, external factors like holidays or weather (exogenous variables), and there are also random fluctuations. ARIMA is a popular method of modeling time series, because of it’s flexibility and generalizability.</p>
+
+        <p>The primary goal of this project was to examine a method to use fewer than 100 non-seasonal ARIMA models to generate weekly forecasts for over 3000 individual series, over the span of one year. The forecasts were generated by simulating the passage of time and updating the models each week from left out data. That is not be confused with producing iterative projections by updating using previous predictions.</p>
+      </div>
+    </div>
+    <!-- Introduction -->
+    <div id="questions" class="content-block">
+      <div class="content-block-inner">
+        <h2>QUESTIONS</h2>
+        <p>Two questions were posed at the start of this project:
+          <ol>
+            <li>How well can weekly sales be forecast using an averaging method?</li>
+            <li>Is modeling averages by department or store more likely to produce superior results?</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+
+    <div id="data" class="content-block">
+      <div class="content-block-inner">
+        <h2>DATA</h2>
+        <p>
+          The dataset used in this project contained five features:
+          <ul>
+            <li><i>Store</i>: integer values to identify individual stores.</li>
+            <li><i>Dept</i>: integer values to identify specific departments (not unique per store).</li>
+            <li><i>Date</i>: strings of the form yyyy-mm-dd, meant to indicate the week of month and year.</li>
+            <li><i>Weekly_Sales</i>: floats giving the sales recorded for that week, in dollars.</li>
+            <li><i>IsHoliday</i>: Boolean (True/False) for if a major holiday occurred during that week.</li>
+          </ul>
+
+          The data contained 421,570 rows, with some store-specific departments missing a few to many weeks of sales.
+        </p>
+
+        <!-- Data Table Head -->
+        <div class="description">Table 1: The first three rows of the raw data.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>Store</th>
+                <th>Dept</th>
+                <th>Date</th>
+                <th>Weekly_Sales</th>
+                <th>IsHoliday</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>0</th>
+                <td>1</td>
+                <td>1</td>
+                <td>2010-02-05</td>
+                <td>24924.50</td>
+                <td>False</td>
+              </tr>
+              <tr>
+                <th>1</th>
+                <td>1</td>
+                <td>1</td>
+                <td>2010-02-12</td>
+                <td>46039.49</td>
+                <td>True</td>
+              </tr>
+              <tr>
+                <th>2</th>
+                <td>1</td>
+                <td>1</td>
+                <td>2010-02-19</td>
+                <td>41595.55</td>
+                <td>False</td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+        </div>
+      </div>
+    </div>
+
+    <div id="anly" class="content-block">
+      <div class="content-block-inner">
+        <h2>ANALYSIS</h2>
+
+        <h3>Preprocessing</h3>
+        <h4>Separate <i>IsHoliday</i></h4>
+        <p><i>IsHoliday</i> was placed in a separate data frame, with the unique <i>Date</i> values as the index. The strings representing dates were converted to actual date-time values. The resulting frame contained 143 rows, one for each week in the set. This data frame will be referred to as <i>is_holiday</i>.</p>
+
+        <h4>Create <i>sales</i> Data Frame</h4>
+        <p>The data frame containing the remaining features was restructured into a more useful form. Specifically, the data frame was grouped by <i>Date</i>, <i>Store</i> and <i>Dept</i>, using mean as the aggregate function. In this case, using an aggregate function did not affect the values, because that grouping left only one value per unique triple. As with <i>is_holida</i>, the <i>Date</i> strings were converted to date-time values. Unstacking the Store and Dept levels left the final <i>sales</i> data:</p>
+
+        <!-- Data Table Head -->
+        <div class="description">Table 2: The first two rows of the sales data.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr>
+                <th>Store</th>
+                <th colspan="10">1</th>
+                <th>...</th>
+                <th colspan="10">45</th>
+              </tr>
+              <tr>
+                <th>Dept</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>5</th>
+                <th>6</th>
+                <th>7</th>
+                <th>8</th>
+                <th>9</th>
+                <th>10</th>
+                <th>...</th>
+                <th>87</th>
+                <th>90</th>
+                <th>91</th>
+                <th>92</th>
+                <th>93</th>
+                <th>94</th>
+                <th>95</th>
+                <th>96</th>
+                <th>97</th>
+                <th>98</th>
+              </tr>
+              <tr>
+                <th>Date</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>2010-02-05 00:00:00</th>
+                <td>24924.50</td>
+                <td>50605.27</td>
+                <td>13740.12</td>
+                <td>39954.04</td>
+                <td>32229.38</td>
+                <td>5749.03</td>
+                <td>21084.08</td>
+                <td>40129.01</td>
+                <td>16930.99</td>
+                <td>30721.50</td>
+                <td>...</td>
+                <td>8818.12</td>
+                <td>32016.42</td>
+                <td>22708.11</td>
+                <td>68203.08</td>
+                <td>4002.34</td>
+                <td>NaN</td>
+                <td>63833.63</td>
+                <td>NaN</td>
+                <td>8393.22</td>
+                <td>347.23</td>
+              </tr>
+              <tr>
+                <th>2010-02-12 00:00:00</th>
+                <td>46039.49</td>
+                <td>44682.74</td>
+                <td>10887.84</td>
+                <td>35351.21</td>
+                <td>29620.81</td>
+                <td>9135.00</td>
+                <td>18310.31</td>
+                <td>37334.83</td>
+                <td>16562.49</td>
+                <td>31494.77</td>
+                <td>...</td>
+                <td>5895.61</td>
+                <td>19724.40</td>
+                <td>13860.64</td>
+                <td>44898.91</td>
+                <td>2665.98</td>
+                <td>2.94</td>
+                <td>41131.42</td>
+                <td>NaN</td>
+                <td>5011.36</td>
+                <td>553.25</td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+        </div>
+
+        <p>To help ensure successful modeling, columns with more than 10% of their values missing were dropped, and those with less than this cutoff had missing values forward filled, then backward filled to fill all missing values.</p>
+
+        <h4>Averaging</h4>
+        <p>The <i>sales</i> data was used to create two data frames central to the modeling: <i>store_avg</i> and <i>dept_avg</i>. These two frames contained sales averaged within individual stores, and cross-store averages by department number, respectively. The former thus had columns indicating only unique store numbers, and the latter only unique department numbers.</p>
+
+        <p>A final step of preprocessing was to necessarily held off until the first portion of exploratory analysis could be conducted, and so it will be mentioned in the next section.</p>
+
+
+        <h3>Exploratory Analysis</h3>
+        <h4>Check for Minimal Scale Differences</h4>
+        <p>Because the method of modeling depends on estimating department-specific sales from averaged sales, it was important to minimize scale differences between individual series and these averages: For an individual series with values substantially smaller than the averaged forecast from which it is estimated, relatively small errors in the forecast will be exaggerated for the individual. Thus, the <i>store_avg</i> and <i>dept_avg</i> sets were analyzed to determine which had the smallest overall scale differences when compared to the individual series. This was done by computing the ratios of original and averaged series, and comparing their distributions.</p>
+
+        <!-- Figure 1 -->
+        <div class="figures">
+          <div class="fig-sm-ind">
+            <a href="images/boxplots.png" target="_blank"><img src="images/boxplots.png"></a>
+            <div class="description">Figure 1: Box plots for original/average series ratios, with dotted vertical lines showing the median values for both store- and department-averages. The department-averages result in a median close to one, and have a narrower distribution.</div>
+          </div>
+        </div>
+
+        <p>The box plots show that <i>dept_avg</i> was the ideal set for the method tested, and so was chosen over <i>store_avg</i> going forward. This leads to the final portion of preprocssing that was skipped in the last section: A set called <i>mean_diffs</i> was created using</p>
+
+        \begin{equation}
+          \Delta_d = S_d - D_d,
+        \end{equation}
+
+        <p>where &Delta;, <i>S</i>, and <i>D</i> are the matrix representations of <i>mean_diffs</i>, <i>sales</i>, and <i>dept_avg</i>, respectively. The subscript <i>d</i> represents performing operations on matching department numbers through broadcasting, rather than column-wise operations. It is this new set that will be used to compute estimates from forecasts of averages.</p>
+
+        <h4>Tests for Stationarity</h4>
+        <p>Because time series modeling depends on stationarity, initial steps to ARIMA modeling typically include plotting the autocorrelation function (ACF) and partial-autocorrelation function (PACF) of the series to be modeled, seasonal decomposition, and tests for stationarity. The ACF and PACF help to determine how stationary a series is and what terms to use in fitting the model. Seasonal decomposition separates the series into three components: trend, seasonal, and what remains (residual), for the purpose of understanding the structure of the series. The test of stationarity in this project was the Dickey-Fuller test.</p>
+
+        <p>Because there were so many models to be fitted in this project (and because most of the series have similar structures), the above steps were taken on one representative series. The results of this step were not used to determine the terms to use in every model, rather they were used to gain some insight into the overall structures.</p>
+
+        <!-- Figures 2 and 3 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/acf-pacf.png" target="_blank"><img src="images/acf-pacf.png"></a>
+            <div class="description">Figure 2: Top: Autocorrelation plot of representative time series. Bottom: Partial autocorrelation plot of same time series.</div>
+          </div>
+
+          <div class="fig-sm">
+            <a href="images/decomp.png" target="_blank"><img src="images/decomp.png"></a>
+            <div class="description">Figure 3: Decomposition of representative series showing original, trend, seasonal, and residual components.</div>
+          </div>
+        </div>
+
+        <p>The Dickey-Fuller tests for stationarity were performed on the original series, as well as after taking first and second differences. The resulting p-values are tabulated below.</p>
+
+        <!-- Table 3: Dickey-Fuller -->
+        <div class="description">Table 3: Dickey-Fuller test results using representative series.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th>Difference:</th>
+                <th>None</th>
+                <th>First</th>
+                <th>Second</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>p-val</th>
+                <td>0.1731</td>
+                <td>0.0047</td>
+                <td>0.0000</td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+        </div>
+
+        <h3>Modeling</h3>
+        <p>ARIMA models require order values (p, d, q) to be set, which correspond to autoregressive terms, nonseasonal differences, and lagged forecast errors. These values can be determined using the methods mentioned at the end of the last section, but because this project involves so many models, selecting and evaluating the order for each by hand would be a lengthy process. To that end, it was necessary to automate the selection process for each model, as described in the following paragraph.</p>
+
+        <p>Automated selection was achieved by iterating over each series, and fitting each to all order combinations, with values from zero to two. The models were evaluated, and orders selected, using Akaike Information Criterion (AIC): the order that produced the smallest value for a given model was selected. Error handling was necessary for this process, particularly for the event of maximum likelihood failing to converge with a particular order.</p>
+
+        <p>To check that values were being selected with some success, one of the original series was overlaid with in-sample predictions:</p>
+
+        <!-- Figure 4 -->
+        <div class="figures">
+          <div class="fig">
+            <a href="images/insample-preds.png" target="_blank"><img src="images/insample-preds.png"></a>
+            <div class="description">Figure 4: In-sample predicted series overlaid on the original.</div>
+          </div>
+        </div>
+
+        <p>As can be seen, at least with this series, the selection process was successful.</p>
+
+        <h3>Final Models</h3>
+        <p>In order to achieve the goal of this project, the final part of the modeling process was to simulate the passing of time and update the models (i.e. re-fit with new orders). With each new set of updates, sales forecasts for all series were made and recorded, along with standard error and the lower/upper bounds of 95% confidence intervals.</p>
+
+        <p>Because holidays tend to fall on either different days of the week each year (e.g. Christmas), or different dates (e.g. Thanksgiving), the week of a holiday month where the peak sales fall might not fall in the same week as the holiday. Because of this, using is_holiday as an exogenous variable can cause some problems with the forecasts. With this in mind, a one week shift in the forecasts for this particular date range was found to produce the best results. A more complex method of shifting sales around to match individual holidays could be devised, but was unnecessary for this project.</p>
+
+        <h3>Final Forecasts</h3>
+        <p>The department-wise forecasts (store specific) were computed using</p>
+
+        \begin{equation}
+          \hat{S}_d = \hat{D}_d + \Delta_d,
+        \end{equation}
+
+        <p>where the "hat" accents indicate forecasted values, and the subscripts have the same meaning as in Eq. 1. This resulted in a data frame with the same structure as <i>sales</i>.</p>
+
+        <h3>Evaluation</h3>
+        <p>To evaluate the performance of the forecasts, the NRMSE was computed for both the initial department-average forecasts and the final forecasts. NRMSE was computed on the forecasted range as follows:</p>
+
+        \begin{equation}
+          NRMSE = \frac{RMSE_d}{|\bar{D}_d|},
+        \end{equation}
+
+        <p>where <i>RMSE</i> is the common root mean square error, and the denominator is the absolute values of series means from <i>dept_avg</i>.</p>
+
+        <p>The NRMSE values were plotted as the heat maps in the figures below, and descriptive statistics tabulated:</p>
+
+        <!-- Figures 5 and 6 -->
+        <div class="figures">
+          <div class="fig">
+            <a href="images/heat-avg.png" target="_blank"><img src="images/heat-avg.png"></a>
+            <div class="description">Figure 5: Heatmap of NMRSE for department-average forecasts, where dfxx labels the forecasted department numbers. The color scale to the right can be used to interpret values, with lower being better.</div>
+          </div>
+          <br>
+
+          <div class="fig">
+            <a href="images/heat-all.png" target="_blank"><img src="images/heat-all.png"></a>
+            <div class="description">Figure 6: Heatmap of NMRSE for department-specific forecasts, where dfxx labels the forecasted department numbers, and Sxx labels the store number to which each department belongs. The color scale to the right can be used to interpret values, with lower being better. Grey values indicate null values.</div>
+          </div>
+        </div>
+
+        <div class="description">Table 2: Descriptive statistics for the forecasts of department-averaged series, and individual departments, rounded to three decimal places. The values with "%" are percentiles.</div>
+        <div class="table-wrap">
+          <table border="1" class="dataframe">
+            <thead>
+              <tr style="text-align: right">
+                <th></th>
+                <th>mean</th>
+                <th>std</th>
+                <th>min</th>
+                <th>25%</th>
+                <th>50%</th>
+                <th>75%</th>
+                <th>max</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Dept_Avg</th>
+                <td>0.083</td>
+                <td>0.069</td>
+                <td>0.015</td>
+                <td>0.040</td>
+                <td>0.055</td>
+                <td>0.092</td>
+                <td>0.352</td>
+              </tr>
+              <tr>
+                <th>Dept_Ind</th>
+                <td>0.618</td>
+                <td>6.345</td>
+                <td>0.007</td>
+                <td>0.039</td>
+                <td>0.070</td>
+                <td>0.156</td>
+                <td>208.302</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="results" class="content-block">
+      <div class="content-block-inner">
+        <h2>RESULTS</h2>
+
+        <p>Sales forecasts for department-average sales were overall quite accurate, with the median NRMSE being 0.055, which can be interpreted as forecast errors being within 5.5% of the sales means. The estimation of store-specific department sales resulted in a median NRMSE of approximately 0.070. Even with relatively low overall error, there are still some individual forecasts that have unacceptably high error. A pair of plots below show a selection of good and bad forecasts overlaid with the actual sales:</p>
+
+        <!-- Figures 7 and 8 -->
+        <div class="figures">
+          <div class="fig-sm">
+            <a href="images/forecast-good.png" target="_blank"><img src="images/forecast-good.png"></a>
+            <div class="description">Figure 7: Comparison plot with the forecasted series for store 1/department 3 overlaid on the actual series. This is an example of a forecast with low NRMSE.</div>
+          </div>
+          <br>
+
+          <div class="fig-sm">
+            <a href="images/forecast-bad.png" target="_blank"><img src="images/forecast-bad.png"></a>
+            <div class="description">Figure 8: Comparison plot with the forecasted series for store 3/department 7 overlaid on the actual series. This is an example a forecast with high NRMSE.</div>
+          </div>
+        </div>
+        &nbsp;
+      </div>
+    </div>
+
+
+    <div id="conclusions" class="content-block">
+      <div class="content-block-inner">
+        <h2>CONCLULSIONS</h2>
+
+        <p>The method outlined in this project, used to significantly reduce the number of models required to make individual forecasts, was able to produce results with reasonably low error, though it is clear that some departments within specific stores should be modeled separately.</p>
+      </div>
+    </div>
+
+
+    <div id="limits" class="content-block">
+      <div class="content-block-inner">
+        <h2>LIMITATIONS</h2>
+
+        <p>The primary limitation in this project was the size of the dataset: the entire set consists of only 143 weeks (2.75 years) of data, which prohibited modeling any seasonal component that might exist. Additionally, there was missing sales data for some departments. Only one exogenous variable was used in modeling, which could limit forecasting potential; weather and unemployment data (available in a complementary set), might have improved the accuracy of forecasts.</p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+    
+
+    <!-- Contact -->
+    <div id="contact" class="content-block">
+      <!-- <?php include 'contact.php';?> -->
+      <h2>Contact</h2>
+      <br>
+      <form class="contact-form" role="form" method="post" action="http://formspree.io/michael@mxcrown.com">
+        <input type="hidden" name="_subject" value="MXC Contact" />
+        <input type="hidden" name="_next" value="#contact" />
+        <input type="hidden" name="_format" value="plain" />
+        <div id="name-group" class="form-group">
+          <div class="col-sm-10">
+            <input type="text" id="name" name="name" placeholder="Name" value="">
+          </div>
+        </div>
+        <div id="email-group" class="form-group">
+          <div>
+            <input type="email" id="email" name="email" placeholder="Email Address" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <textarea rows="4" name="message" placeholder="Message"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="human">2 &times; 4 = ?</label>
+          <div>
+            <input type="text" id="human" placeholder="Your Answer">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <input id="submit" type="submit" value="Send">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <!-- Will be used to display an alert to the user -->
+          </div>
+        </div>
+      </form>
+    </div>
+
+
+    <!-- {% include footer.html %} -->
+    <div class="footer">
+      <hr />
+      <div class="footer-link">
+        <a href="https://github.com/{{ site.author.github }}"><i class="fa fa-github" aria-hidden="true"></i></a>
+
+        <a href="mailto:{{ site.author.email }}"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+
+      </div>
+      &copy; 2016 Michael Crown. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+

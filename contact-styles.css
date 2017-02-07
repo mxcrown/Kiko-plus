@@ -1,0 +1,61 @@
+/*=== Contact Form Styles ===*/
+
+.contact-form {
+    width: 100%;
+}
+
+/*.contact-form input, .contact-form textarea {
+    width: 300px;
+}*/
+
+#name-group, #email-group {
+    display: block;
+    width: 50%;
+    min-width: 290px;
+}
+
+input, textarea {
+    display: block;
+    /*margin: 0;*/
+    width: 100%;
+    min-width: 290px;
+    margin-bottom: 15px;
+    font-family: 'avenir';
+    font-size: 16px;
+    appearance: none;
+    box-shadow: none;
+    border: 0px;
+    border-bottom: 1px solid #ddd;
+    border-radius: none;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+}
+
+input[type="text"], input[type="email"] {
+    padding-bottom: 4px;
+}
+
+textarea {
+    border: 1px solid #ddd;
+}
+
+input[type="submit"] {
+    background-color: #555;
+    color: white;
+    border: 1px solid #555;
+    padding: 7px;
+    cursor: pointer;
+
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+}
+
+input[type="submit"]:hover {
+    background-color: white;
+    color: black;
+
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+}

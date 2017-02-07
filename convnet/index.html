@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- {% include head.html %} -->
+<head>
+  <title>Michael Crown: Convolutional Neural Network Program</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Michael Crown - Convolutional Neural Network Program" />
+  <!-- <meta property="og:url" content="" /> -->
+  <meta property="og:site_name" content="Michael Crown" />
+  
+  <!-- MathJax -->
+  <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'>
+    MathJax.Hub.Config({
+      TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+  </script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../styles.css" type="text/css">
+  <link rel="stylesheet" href="../contact-styles.css" type="text/css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <script   src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+  <script src="../functions.js"></script>
+
+
+  <!-- <link rel="alternate" type="application/rss+xml" title="RSS Feed for {{ site.name }}" href="{{ site.baseurl }}/feed.xml" /> -->
+  <!-- {% seo %} -->
+
+
+  <!-- {% include google-analytics.html %} -->
+
+</head>
+<body>
+  <div class="content-container"> <!-- change to 2rem padding -->
+    <!-- {{ content }} -->
+    <!-- {% include header.html %} -->
+    <header class="header">
+      <h1 class="header-title">
+        <img src="../images/logo.png">
+        <a href="https://mxcrown.github.io">Michael Crown</a>
+        <br>
+        <span>data scientist</span>
+      </h1>
+      <nav class="header-nav">
+        <a href="/#who">About</a>
+        <a href="/#projects">Projects</a>
+        <a href="https://github.com/mxcrown">Github</a>
+      </nav>
+    </header>
+
+    <!-- Executive Summary -->
+    <div id="exec" class="content-block"> <!-- content-block 2% padding -->
+      <div class="content-block-inner">
+        <h1>GPU Accelerated Concolutional Neural Networks</h1>
+        <h2 class='sub'>Including Dropout, Momentum and L2 Regularization.</h2>
+        <br>
+
+        <p>This is a fully functional Theano-based program for constructing, training, and evaulating convolutional neural networks. Available layer types are convolutional, fully-connected, and softmax (special case of fully connected), which means a network does not have to use concolution. The networks learn using stochastic gradient descent, with optional momentum and l2 regularization.</p>
+
+        <p>NOTE: This is not designed to work with python versions < 3.x. Also note, I have chosen to use greek characters for learning rate (&eta;), momentum (&mu;), and L2 regularization (&lambda;). Just a personal preference.</p>
+
+        <h3>Features</h3>
+
+          <ul>
+            <li>Theano based programming for GPU acceleration (Requires some setup and Nvidia GPU)</li>
+            <li>Choice of activation function (ReLU, softmax, tanh, sigmoid)</li>
+            <li>Optional max-pooling with convolution layers</li>
+            <li>Dropout</li>
+            <li>Momentum</li>
+            <li>L2 Regularization</li>
+            <li>Works with sparse matrices as input (must be specified in self.sgd() arguments as sparse=True)</li>
+            <li>Optional input of validation and test sets</li>
+            <li>Hyper-parameter tuning/evaulation
+              <ul>
+                <li>Returns list of doubles, containing scores paired with ordered dict of associated hypers</li>
+              </ul>
+            </li>
+            <li>Save models (and load from save)
+              <ul>
+                <li>Saves parameters (bias, weight, and velocity matrices) and some metadata that can be used for reconstructing model architecture</li>
+              </ul>
+            </li>
+            <li>Reset function (used to reset parameter values)
+              <ul>
+                <li>This is necessary for any instance of re-training (e.g. cross validation)</li>
+              </ul>
+            </li>
+            <li>Optional prediction as probabilities
+              <ul>
+                <li>Requires output layer to be softmax type</li>
+              </ul>
+            </li>
+            <li>K-fold CV (incomplete)</li>
+            <li>Prints status during training
+              <ul>
+                <li>Number of batches</li>
+                <li>Current epoch number and fraction complete</li>
+              </ul>
+            </li>
+            <li>Prints best epoch scores for validation and test data upon completion</li>
+            <li>Scoring metrics currently include accuracy, precision, recall, and F1</li>
+          </ul>
+
+        <p>I will be adding choices for error/loss functions soon, but it hasn't been a priority. The current function (in both FCLayer and SoftmaxLayer) is log likelihood. It is easy enough to change loss function for specific use needs if you are familiar with Theano.</p>
+
+        <p>There may be some disarray in the code at the moment, mostly because I have made changes on the fly for specific projects. However, it is still very fast and efficient when used with a decent Nvidia GPU.</p>
+
+
+        <p>I will post a notebook demontrating the usage with MNIST soon, but in the mean time, here is a basic use eample:</p>
+
+        ```python
+        # if conventwork.py is not in current python path:
+        # import sys
+        # sys.path.append('/path/to/directory/containing/file')
+
+        import convnetwork
+        from convnetwork import ConvNet as CN
+        from convnetwork import ConvLayer as cvl, FCLayer as fcl, SoftmaxLayer as sfl
+
+        # init network with architecture defined by layers=[]
+        net = CN(layers=[cvl(inpt_shape=(None, 1, 28, 28), 
+                             filter_shape=(32, 1, 3, 3),
+                             pool_shape=(2,2)),
+                         cvl(inpt_shape=(None, 32, 13, 13), 
+                             filter_shape=(64, 32, 4, 4),
+                             pool_shape=(2,2)),
+                         fcl(n_in=32*5*5, n_neurons=32, p_drop=0.2),
+                         sfl(n_in=32, n_neurons=10)])
+
+        # train the network using stochastic gradient descent
+        train = (Xtr, ytr)
+        val = (Xval, yval)
+        test = None
+        mb_size = 50
+        epochs = 30
+        learn_rate = 0.02
+        momentum = 0.4
+        l2_reg = 0.0
+
+        net.sgd(train, val, test, mb_size, epochs, 
+                learn_rate, momentum, l2_reg)
+
+        # prints status
+        # prints best scores and best epoch after training completes
+
+
+        # Make a prediction from single or multiple observations: x
+
+        # return predicted class
+        net.predict(x)
+        # return probabilities of classes
+        net.p_predict(x)
+
+
+        # reset network to re-train
+        net.reset()
+
+        # then retrain
+        net.sgd(...)
+        ```
+
+        <p>Get the code <a href="https://github.com/mxcrown/convnetwork/blob/master/convnetwork.py">here</a></p>
+      </div>
+    </div>
+
+    <hr class="block-hr" />
+
+
+    <!-- Contact -->
+    <div id="contact" class="content-block">
+      <!-- <?php include 'contact.php';?> -->
+      <h2>Contact</h2>
+      <br>
+      <form class="contact-form" role="form" method="post" action="http://formspree.io/michael@mxcrown.com">
+        <input type="hidden" name="_subject" value="MXC Contact" />
+        <input type="hidden" name="_next" value="#contact" />
+        <input type="hidden" name="_format" value="plain" />
+        <div id="name-group" class="form-group">
+          <div class="col-sm-10">
+            <input type="text" id="name" name="name" placeholder="Name" value="">
+          </div>
+        </div>
+        <div id="email-group" class="form-group">
+          <div>
+            <input type="email" id="email" name="email" placeholder="Email Address" value="">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <textarea rows="4" name="message" placeholder="Message"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="human">2 &times; 4 = ?</label>
+          <div>
+            <input type="text" id="human" placeholder="Your Answer">
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <input id="submit" type="submit" value="Send">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <!-- Will be used to display an alert to the user -->
+          </div>
+        </div>
+      </form>
+    </div>
+
+
+    <!-- {% include footer.html %} -->
+    <div class="footer">
+      <hr />
+      <div class="footer-link">
+        <a href="https://github.com/{{ site.author.github }}"><i class="fa fa-github" aria-hidden="true"></i></a>
+
+        <a href="mailto:{{ site.author.email }}"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+
+      </div>
+      &copy; 2016 Michael Crown. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+
