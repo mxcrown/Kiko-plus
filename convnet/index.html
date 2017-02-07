@@ -60,20 +60,20 @@
       <nav class="header-nav">
         <a href="/#who">About</a>
         <a href="/#projects">Projects</a>
-        <a href="https://github.com/mxcrown">Github</a>
+        <a href="https://github.com/mxcrown">GitHub</a>
       </nav>
     </header>
 
     <!-- Executive Summary -->
     <div id="exec" class="content-block"> <!-- content-block 2% padding -->
       <div class="content-block-inner">
-        <h1>GPU Accelerated Concolutional Neural Networks</h1>
+        <h1>GPU Accelerated Convolutional Neural Networks</h1>
         <h2 class='sub'>Including Dropout, Momentum and L2 Regularization.</h2>
         <br>
 
-        <p>This is a fully functional Theano-based program for constructing, training, and evaulating convolutional neural networks. Available layer types are convolutional, fully-connected, and softmax (special case of fully connected), which means a network does not have to use convolution. The networks learn using stochastic gradient descent, with optional dropout, momentum, and L2 regularization.</p>
+        <p>This is a fully functional Theano-based program for constructing, training, and evaluating convolutional neural networks. Available layer types are convolutional, fully-connected, and softmax (special case of fully connected), which means a network does not have to use convolution. The networks learn using stochastic gradient descent, with optional dropout, momentum, and L2 regularization.</p>
 
-        <p>NOTE: This is not designed to work with python versions < 3.x. Also note, I have chosen to use greek characters for learning rate (&eta;), momentum (&mu;), and L2 regularization (&lambda;). Just a personal preference.</p>
+        <p>NOTE: This is not designed to work with python versions < 3.x. Also note, I have chosen to use Greek characters for learning rate (&eta;), momentum (&mu;), and L2 regularization (&lambda;). Just a personal preference.</p>
 
         <h3>Features</h3>
 
@@ -86,7 +86,7 @@
             <li>L2 Regularization</li>
             <li>Works with sparse matrices as input (must be specified in self.sgd() arguments as sparse=True)</li>
             <li>Optional input of validation and test sets</li>
-            <li>Hyper-parameter tuning/evaulation
+            <li>Hyper-parameter tuning/evaluation
               <ul>
                 <li>Returns list of doubles, containing scores paired with ordered dict of associated hypers</li>
               </ul>
@@ -122,10 +122,10 @@
         <p>There may be some disarray in the code at the moment, mostly because I have made changes on the fly for specific projects. However, it is still very fast and efficient when used with a decent Nvidia GPU.</p>
 
 
-        <p>I will post a notebook demontrating the usage with MNIST soon, but in the mean time, here is a basic use eample:</p>
+        <p>I will post a notebook demonstrating the usage with MNIST soon, but in the mean time, here is a basic use example:</p>
 
         <pre>
-        # if conventwork.py is not in current python path:
+        # if convnetwork.py is not in current python path:
         # import sys
         # sys.path.append('/path/to/directory/containing/file')
 

@@ -56,7 +56,7 @@
       <nav class="header-nav">
         <a href="/#who">About</a>
         <a href="/#projects">Projects</a>
-        <a href="https://github.com/mxcrown">Github</a>
+        <a href="https://github.com/mxcrown">GitHub</a>
       </nav>
     </header>
 
@@ -111,7 +111,7 @@
     <div id="intro" class="content-block"> <!-- content-block 2% padding -->
       <div class="content-block-inner">
         <h2>INTRODUCTION</h2>
-        <p>This report outlines the process of modeling historical transaction data (approximately 285,000 transactions) to predict credit card fraud, using Naive Bayes (NB), neural networks (NN), and random forest classifiers (RF). Modeling was follwed by calibration of predicted probabilities, to better approximate real world values. The motivation behind the calibration is to make classification decisions that minimize the loss incurred by fraudulent purchases; in order to compute minimized risk correctly, it is necessary to have predicted probabilities that are as close as possible to real-world values.</p>
+        <p>This report outlines the process of modeling historical transaction data (approximately 285,000 transactions) to predict credit card fraud, using Naive Bayes (NB), neural networks (NN), and random forest classifiers (RF). Modeling was followed by calibration of predicted probabilities, to better approximate real world values. The motivation behind the calibration is to make classification decisions that minimize the loss incurred by fraudulent purchases; in order to compute minimized risk correctly, it is necessary to have predicted probabilities that are as close as possible to real-world values.</p>
       </div>
     </div>
     <!-- Introduction -->
@@ -122,7 +122,7 @@
           <ol>
             <li>Can fraudulent credit card transactions be predicted from the available data with reasonable performance?</li>
             <li>How well can fraud be predicted using different models?</li>
-            <li>Will there be a large tradeoff between precision and recall?</li>
+            <li>Will there be a large trade off between precision and recall?</li>
             <li>How well do the top models minimize cost for different <i>C<sub>in</sub></i> values?</li>
             <li>What can be done to further minimize cost?</li>
           </ol>
@@ -134,7 +134,7 @@
       <div class="content-block-inner">
         <h2>DATA</h2>
         <p>
-          The dataset used in this analysis was obtained from kaggle datasets and is structured as follows:
+          The dataset used in this analysis was obtained from Kaggle datasets and is structured as follows:
           <ul>
             <li>284,807 transactions with 492 classified as fraudulent (positive)
               <ul>
@@ -416,7 +416,7 @@
 
         <p>These models were evaluated using an automated hyper-parameter (hypers) search algorithm built into the program, using a random search approach. This iteratively trained on 150 combinations of hypers for each model, at 40 epochs per combination. Results from printouts and plots showing epoch scores were used to choose final model architecture.</p>
 
-        <p>The two best performers used a single hidden layer with with 14 nodes (no feature selection), both resampled (gen 1K) and original sample. The resampled set gave slightly better recall scores on the validation set (0.778 vs. 0.741) at the expense of precision (0.764 vs 0.842), what appears to be an overall reduction in performance for the gen 1K set. However, the no-resample model achieved an approximate 0.03 bump in precision after what appeared to be some over-training. Beause of this and a slight preference for higher recall, the final model used the gen 1K resampled data.</p>
+        <p>The two best performers used a single hidden layer with with 14 nodes (no feature selection), both resampled (gen 1K) and original sample. The resampled set gave slightly better recall scores on the validation set (0.778 vs. 0.741) at the expense of precision (0.764 vs 0.842), what appears to be an overall reduction in performance for the gen 1K set. However, the no-resample model achieved an approximate 0.03 bump in precision after what appeared to be some over-training. Because of this and a slight preference for higher recall, the final model used the gen 1K resampled data.</p>
 
         <p>The final NN model used the concatenation of the resampled training set and validation set. Performance was tracked against this combined data for fine-tuning, and not the test data (see table 3); scoring predictions on the test set were saved until after tuning.</p>
 
@@ -509,7 +509,7 @@
           \(\lambda_{11}\) = <i>C<sub>in</sub></i> ($): the cost of deciding the transaction is fraudulent when it is.
         </p>
 
-        <p>The value <i>C<sub>in</sub></i> is some internal (administrative) cost associated with acting on the decision that a transaction is fraudulent. Because the internal cost is both unknown, and may not always be the same, the first goal of cost analysis was to compare the losses of the top two models as <i>C<sub>in</sub></i> varies, relative to the total loss if no fraud detection is used. The second goal was to evaluate the overall predictive performance of the two models under the same varying conditions, but without minimum risk decision making (i.e. making decisions based soley on model predictions).</p>
+        <p>The value <i>C<sub>in</sub></i> is some internal (administrative) cost associated with acting on the decision that a transaction is fraudulent. Because the internal cost is both unknown, and may not always be the same, the first goal of cost analysis was to compare the losses of the top two models as <i>C<sub>in</sub></i> varies, relative to the total loss if no fraud detection is used. The second goal was to evaluate the overall predictive performance of the two models under the same varying conditions, but without minimum risk decision making (i.e. making decisions based solely on model predictions).</p>
 
         <p>This analysis was conducted in multiple parts:
 
@@ -582,7 +582,7 @@
 
         <p>While the two models can achieve the same level of recall, there is a large difference in precision, meaning the NN is generating many false-positives in order to achieve high recall. The performance difference is also reflected in the AUC values. The PR-AUC was unchanged after calibrating probabilities.</p>
 
-        <h3>Cost Anlaysis</h3>
+        <h3>Cost Analysis</h3>
         <h4>With and Without Risk Minimization</h4>
 
         <p>Two figures are presented for evaluation of the performance of the calibrated models: Figure 6 shows total loss in dollars (left y-axis), and the decision truth ratio (right y-axis) as functions of <i>C<sub>in</sub></i>. The decision/truth ratio is the number of transactions decided to be fraudulent, divided by the number of actual fraudulent transactions  &mdash; this is a simplified way of knowing how the minimum risk is making decisions as <i>C<sub>in</sub></i> varies. Figure 7 shows a wider range for <i>C<sub>in</sub></i> and compares losses of classifications with and without using minimum risk (Bayesian decisions vs. purely prediction-based). Making decisions based on minimum risk result in smaller losses compared to decisions based purely on model predictions.</p>
@@ -624,7 +624,7 @@
       <div class="content-block-inner">
         <h2>CONCLULSIONS</h2>
 
-        <p>A fraud detetection system that uses Bayesian minimum risk can lead to significant savings when compared to using model predictions alone, and it is important to have properly calibrated probabilities when doing so. Both the NN and RF models appear to have very similar loss for most <i>C<sub>in</sub></i> values when using this method, but the RF has slightly lower loss for much of the range. Regardless, choosing a model should be determined after knowing the precise value of <i>C<sub>in</sub></i>, as well as how many false negatives and false positives are acceptable.</p>
+        <p>A fraud detection system that uses Bayesian minimum risk can lead to significant savings when compared to using model predictions alone, and it is important to have properly calibrated probabilities when doing so. Both the NN and RF models appear to have very similar loss for most <i>C<sub>in</sub></i> values when using this method, but the RF has slightly lower loss for much of the range. Regardless, choosing a model should be determined after knowing the precise value of <i>C<sub>in</sub></i>, as well as how many false negatives and false positives are acceptable.</p>
       </div>
     </div>
 

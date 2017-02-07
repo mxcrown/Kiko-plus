@@ -60,7 +60,7 @@
       <nav class="header-nav">
         <a href="/#who">About</a>
         <a href="/#projects">Projects</a>
-        <a href="https://github.com/mxcrown">Github</a>
+        <a href="https://github.com/mxcrown">GitHub</a>
       </nav>
     </header>
 
@@ -415,10 +415,10 @@
           \hat{S}_d = \hat{D}_d + \Delta_d,
         \end{equation}
 
-        <p>where the "hat" accents indicate forecasted values, and the subscripts have the same meaning as in Eq. 1. This resulted in a data frame with the same structure as <i>sales</i>.</p>
+        <p>where the "hat" accents indicate forecast values, and the subscripts have the same meaning as in Eq. 1. This resulted in a data frame with the same structure as <i>sales</i>.</p>
 
         <h3>Evaluation</h3>
-        <p>To evaluate the performance of the forecasts, the NRMSE was computed for both the initial department-average forecasts and the final forecasts. NRMSE was computed on the forecasted range as follows:</p>
+        <p>To evaluate the performance of the forecasts, the NRMSE was computed for both the initial department-average forecasts and the final forecasts. NRMSE was computed on the forecast range as follows:</p>
 
         \begin{equation}
           NRMSE = \frac{RMSE_d}{|\bar{D}_d|},
@@ -432,13 +432,13 @@
         <div class="figures">
           <div class="fig">
             <a href="images/heat-avg.png" target="_blank"><img src="images/heat-avg.png"></a>
-            <div class="description">Figure 5: Heatmap of NMRSE for department-average forecasts, where dfxx labels the forecasted department numbers. The color scale to the right can be used to interpret values, with lower being better.</div>
+            <div class="description">Figure 5: heat map of NMRSE for department-average forecasts, where dfxx labels the forecast department numbers. The color scale to the right can be used to interpret values, with lower being better.</div>
           </div>
           <br>
 
           <div class="fig">
             <a href="images/heat-all.png" target="_blank"><img src="images/heat-all.png"></a>
-            <div class="description">Figure 6: Heatmap of NMRSE for department-specific forecasts, where dfxx labels the forecasted department numbers, and Sxx labels the store number to which each department belongs. The color scale to the right can be used to interpret values, with lower being better. Grey values indicate null values.</div>
+            <div class="description">Figure 6: heat map of NMRSE for department-specific forecasts, where dfxx labels the forecast department numbers, and Sxx labels the store number to which each department belongs. The color scale to the right can be used to interpret values, with lower being better. Grey values indicate null values.</div>
           </div>
         </div>
 
@@ -494,13 +494,13 @@
         <div class="figures">
           <div class="fig-sm">
             <a href="images/forecast-good.png" target="_blank"><img src="images/forecast-good.png"></a>
-            <div class="description">Figure 7: Comparison plot with the forecasted series for store 1/department 3 overlaid on the actual series. This is an example of a forecast with low NRMSE.</div>
+            <div class="description">Figure 7: Comparison plot with the forecast series for store 1/department 3 overlaid on the actual series. This is an example of a forecast with low NRMSE.</div>
           </div>
           <br>
 
           <div class="fig-sm">
             <a href="images/forecast-bad.png" target="_blank"><img src="images/forecast-bad.png"></a>
-            <div class="description">Figure 8: Comparison plot with the forecasted series for store 3/department 7 overlaid on the actual series. This is an example a forecast with high NRMSE.</div>
+            <div class="description">Figure 8: Comparison plot with the forecast series for store 3/department 7 overlaid on the actual series. This is an example a forecast with high NRMSE.</div>
           </div>
         </div>
         &nbsp;
