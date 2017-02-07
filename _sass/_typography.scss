@@ -33,7 +33,6 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: .5rem;
   font-weight: 300;
-  font-size: 11pt;
   line-height: 1.1;
   color: #333;
   letter-spacing: -.025rem;
@@ -176,7 +175,7 @@ pre {
 }
 
 code {
-  padding: .25em .5em;
+  padding: .25em .2em;
   font-size: 85%;
   color: $code-color;
   background-color: $code-background-color;
@@ -188,7 +187,7 @@ pre {
   margin-top: 0;
   margin-bottom: 1rem;
   padding: .5rem;
-  font-size: .8rem;
+  font-size: .6rem;
   line-height: 1.4;
   white-space: pre;
   white-space: pre-wrap;
