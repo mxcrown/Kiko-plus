@@ -115,14 +115,16 @@
 
         <p>I will post a notebook demontrating the usage with MNIST soon, but in the mean time, here is a basic use eample:</p>
 
-        ```python
+        <pre>
         # if conventwork.py is not in current python path:
         # import sys
         # sys.path.append('/path/to/directory/containing/file')
 
         import convnetwork
         from convnetwork import ConvNet as CN
-        from convnetwork import ConvLayer as cvl, FCLayer as fcl, SoftmaxLayer as sfl
+        from convnetwork import ConvLayer as cvl
+        from convnetwork import FCLayer as fcl
+        from convnetwork import SoftmaxLayer as sfl
 
         # init network with architecture defined by layers=[]
         net = CN(layers=[cvl(inpt_shape=(None, 1, 28, 28), 
@@ -150,21 +152,18 @@
         # prints status
         # prints best scores and best epoch after training completes
 
-
         # Make a prediction from single or multiple observations: x
-
-        # return predicted class
+        # return class prediction
         net.predict(x)
-        # return probabilities of classes
+        # return predicted probabilities
         net.p_predict(x)
-
 
         # reset network to re-train
         net.reset()
 
         # then retrain
         net.sgd(...)
-        ```
+        </pre>
 
         <p>Get the code <a href="https://github.com/mxcrown/convnetwork/blob/master/convnetwork.py">here</a></p>
       </div>
