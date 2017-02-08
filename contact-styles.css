@@ -50,6 +50,8 @@ input[type="submit"] {
 
     transition: all 0.5s;
     -webkit-transition: all 0.5s;
+
+    -webkit-appearance: none;
 }
 
 input[type="submit"]:hover {
@@ -58,4 +60,6 @@ input[type="submit"]:hover {
 
     transition: all 0.5s;
     -webkit-transition: all 0.5s;
+
+    -webkit-appearance: none;
 }
