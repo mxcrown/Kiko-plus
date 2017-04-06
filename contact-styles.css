@@ -8,7 +8,9 @@
     width: 300px;
 }*/
 
-#name-group, #email-group {
+#name-group, #email-group, 
+#name-group-q, #url-group-q,
+#email-group-q, #input_2 {
     display: block;
     width: 50%;
     min-width: 290px;
