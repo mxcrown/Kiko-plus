@@ -4,7 +4,7 @@ $(document).ready(function() {
     var $h = $(window).height() - $('.header').outerHeight(true);
     $('#top-content').css('height', $h);
 
-    $('#initial-nav a').click(function() {
+    $('a').click(function() {
         var $el = $(this);
         var $target = $('#' + $el.attr('id').split('-', 1));
         if (!$el.attr('href')) {
